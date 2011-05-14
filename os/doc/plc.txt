@@ -1,0 +1,147 @@
+
+	                     		=== PLC模块 ===
+
+1.	PLC的使用可能有点烦琐，主要原因在于PLC是建立在其它设备(RS232)之上的,
+	这样一来，我们除了要关心PLC的状态及参数之外，还必须关心与之关联设备的问题。
+
+2.	若要启用PLC功能，需要：
+
+	1)	在plc\plc_svc.h中，要有如下定义:
+
+		#define FAMES_PLC_SVC_EN  1 //PLC模块编译开关
+
+	2)	在应用程序中(一般是start()中)须有如下调用:
+
+		InitPLCService();	    //整个PLC模块的初始化
+
+3.	PLC模块初始化后，通过以下步骤使用PLC:
+
+	1)	定义PLC指针，然后向系统申请PLC:
+
+		PLC * plc1;
+		
+		plc1 = plc_alloc();
+		if(!plc1){
+			//申请失败……
+		}
+		……
+		……
+
+	2)	调用plc_set_param()设置PLC参数，如设置一个永宏PLC:
+
+		BOOL  retval;
+
+		retval = plc_set_param( plc1, 		  //PLC指针
+					PLC_TYPE_FATEK,   //类型
+					"fatek-plc-1",	  //名称, 也是对应此PLC的后台任务名, 不可为空
+					NULL, 		  //自定义数据
+					1, 		  //PLC站号
+					0x3F8, 		  //PLC所用串口之基地址
+					4, 	 	  //PLC所用串口之IRQ
+					38400, 		  //PLC所用串口之波特率
+					COM_PARITY_EVEN,  //PLC所用串口之校验位
+					7, 		  //PLC所用串口之数据位
+					1, 		  //PLC所用串口之停止位
+					COM_FIFO_TL_4	  //PLC所用串口之FIFO控制码
+				   );
+
+		if(!retval) {
+			//PLC参数设置失败……
+		}
+
+	3)	打开PLC，PLC服务器开始处理PLC请求:
+
+		retval = open_plc(plc1);
+
+		if(!retval) {
+			//PLC打开失败……
+		}
+
+	4)	按应用需要定义PLC命令(PLC_ACTION)及关联变量:
+
+		PLC_ACTION  plc_a_1, plc_a_2, plc_a_3; //可以有任务多个
+		INT16S      var_1, var_2, var_3;       //与PLC命令对应
+
+		var_1 = 0;	//初始化
+		var_2 = 0;
+		var_3 = 0;
+
+	5)	设置PLC命令的参数：
+
+		retval = plc_set_action(&plc_a_1,	   //PLC_ACTION
+					 FATEK_PLC_READ_R, //PLC操作命令
+					 "R01000",	   //永宏PLC的一个暂存器地址
+					 &var_1,	   //与此地址关联的变量
+					 1,		   //关联变量的个数
+					 1,		   //10毫秒执行一次通讯
+					 NULL		   //FINISH例程
+					);
+		if(!retval) {
+			//设置参数失败……
+		}
+		
+		……	//其它的PLC_ACTION以同样的方式设置参数
+		……
+		
+		//FINISH例程是在某次通讯完成后被调用的函数(回调函数)
+					 
+	6)	发送PLC请求(也可以取消请求):
+
+		retval = do_plc_action(  plc1,		      //需处理请求的PLC
+					&plc_a_1,	      //PLC_ACTION
+					 PLC_ACTION_FLAG_LINK //发送标志
+				      );
+		if(!retval) { ... }
+
+		retval = do_plc_action(  plc1,		      //需处理请求的PLC
+					&plc_a_2,	      //PLC_ACTION
+					 PLC_ACTION_FLAG_LINK //发送标志
+				      );
+		if(!retval) { ... }
+
+		//在此要注意，不同的发送标志具有不同的功能，比如
+		//PLC_ACTION_FLAG_LINK是发送PLC_ACTION到PLC，而
+		//PLC_ACTION_FLAG_UNLK是取消PLC中的某个PLC_ACTION
+		//PLC_ACTION_FLAG_ONCE是直接执行此PLC_ACTION，而并不发送
+		//PLC_ACTION_FLAG_ONCE_ASYC表示会发送，但只执行一次!(异步的单次执行)
+
+	7)	使用完毕后，就可以关闭PLC，然后释放PLC：
+		
+		retval = shut_plc(plc1);
+
+		if(!retval) { ...  }  //关闭错误……
+
+		retval = plc_free(plc1);
+		plc1 = NULL;
+
+		if(!retval) { ...  }  //释放错误……
+
+		//至此，这个PLC的使用过程就全部完成了!
+
+4.  上述步骤为使用PLC的通用步骤, 一般情况下, 使用PLC有两种方式:
+
+        [1] 循环读写PLC的某些暂存器或状态, 直到程序结束;
+        [2] 只在需要的时候, 读写一次或多次, 不需要时不再读写.
+
+        其中方式[1]有一种相对简化的定义方式, 如:
+        
+            INT16S r4151=0, plc_x[2]={0}, plc_y[2]={0};
+            void plc_x_finish(int value);
+
+            BEGIN_PLC_ACTION_MAP(plc_a_1) //开始映射
+            PLC_MAP_LINK("R04151", &r4151, 1, FATEK_PLC_READ_R, 10, NULL)
+            PLC_MAP_LINK("WX0000",  plc_x, 2, FATEK_PLC_READ_R,  0, plc_x_finish)
+            PLC_MAP_LINK("WY0000",  plc_y, 2, FATEK_PLC_READ_R,  0, NULL)
+            ..... //可定义更多的PLC_ACTION映射
+            ..... 
+            END_PLC_ACTION_MAP();        //结束映射
+
+            retval = do_plc_action_map(plc1, plc_a_1); //加载到PLC
+            if(!retval)
+                return fail;
+
+        这种方式简洁明了, 推荐使用!
+
+
+5.	结束。
+

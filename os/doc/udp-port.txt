@@ -1,0 +1,96 @@
+
+	                     		=== UDP端口 ===
+
+1.	应用程序若需通过UDP协议来收发数据，那么首先要打开UDP端口(开始监听)，而使用完成后，
+	就需要关闭相应的端口，具体的API调用只有两个:
+
+		BOOL apical open_udp_port(INT16U port, udp_dispatcher_func_type dispatcher);
+		BOOL apical close_udp_port(INT16U port);
+
+2.	open_udp_port(port, dispatcher):
+
+	参数:	port        要监听的UDP端口(1~65535)
+		dispatcher  对应UDP端口的数据包处理函数(或者说已接收数据包的分发过程)
+
+	说明:	每当UDP端口有数据收到时，dispatcher函数就会被自动调用，其原型为：
+
+		void dispatcher(INT08S *ip_pkt, INT16S pkt_len);
+
+		@参数:  ip_pkt    收到的IP数据包，包括IP首部及UDP首部.
+			pkt_len   IP数据包的长度，以字节计
+
+		由于dispatcher的运行上下文是网络的服务任务(network daemon)，所以dispatcher的长时间处理
+		或阻塞(包括睡眠)都将直接影响整个系统的网络传输过程，即无法再接收网卡数据，直到dispatcher返回，
+		正因为如此，所以dispatcher必须符合一定的处理策略：
+
+			1) 须创建一个对应的任务task_udp_port与dispatcher配合;
+			2) dispatcher收到数据包后不是直接处理，而是要发送到task_udp_port;
+			3) dispatcher返回，数据包由task_udp_port处理.
+
+	    *	当然，有的时候，数据包的处理过程是特别简单的，一般认为没有必要专门创建一个新任务来处理，
+		这时由dispatcher自己来处理也可以，
+				
+		    		  ***** 但是 ***** 千万千万 *****
+
+			不要在dispatcher当中调用类似于send_udp()之类的{网络发送}函数! 这是因为这类函数
+			极易引起网络服务任务睡眠很长的时间，进而出现网络无响应的故障。
+
+		所以，要特别注意。
+
+3.	close_udp_port(port):
+
+	参数:	port  要关闭的UDP端口
+
+	说明:	应用程序在使用完某个UDP端口或者不想再监听某个UDP端口时，应该调用此函数来关闭这个端口.
+
+4.	使用示例：
+
+	int port_2000_rxed = 0;
+	INT32U target_ip;
+	INT16U target_port;
+
+	void dispatcher_2000(INT08S * ip_pkt, INT16S len) /*dispatcher() for udp port 2000*/
+	{
+		struct iphdr * ip_hdr;
+		struct udphdr * udp_hdr;
+
+		ip_hdr = (struct iphdr *)ip_pkt;
+		udp_hdr = (struct udphdr *)(ip_pkt+20);
+		lock_kernel();
+		printf("%08lX, to %u, from %u\n", ip_hdr->saddr, INT16XCHG(udp_hdr->dest), INT16XCHG(udp_hdr->source));
+		target_ip = ip_hdr->saddr;
+		target_port = INT16XCHG(udp_hdr->source);
+		port_2000_rxed = 1;
+		unlock_kernel();
+
+    		len = len; /* prevent warning */
+	}
+
+	void task_udp_port(void * data) /*task() for udp port 2000*/
+	{
+		INT08S buf[]="Hello, Friends!\n";
+
+        	data = data; /* prevent warning */
+        
+		for(;;){
+    		if(port_2000_rxed){
+			port_2000_rxed = 0;
+        			send_udp(target_ip, target_port, 2000, buf, sizeof(buf));
+   			}
+   	 		TaskSleep(10L);
+		}
+	}
+
+	void example_init_udp_port(void) /*example*/
+	{
+		if(!open_udp_port(2000, dispatcher_2000)){ /*open udp port*/
+    			printf("open_udp_port(2000) failed\n");
+    			getch();
+		}
+		TaskCreate(task_udp_port,NULL, "task_udp_port", NULL, 2048, 6, 0);
+		TaskSleep(60000L); /*last 1 minute for demo*/
+		close_udp_port(2000); /*close udp port*/
+	}
+		
+5.	结束。
+

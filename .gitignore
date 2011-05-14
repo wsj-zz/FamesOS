@@ -1,0 +1,12 @@
+*.txt
+*.TXT
+*.map
+*.MAP
+*.obj
+*.OBJ
+*.lib
+*.LIB
+*.exe
+*.EXE
+!history.txt
+!os/doc/*

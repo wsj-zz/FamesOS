@@ -1,0 +1,63 @@
+// Please note -- this is a representative set of error suppression
+//                options.  Please adjust to suit your own policies
+//                See  manual (chapter LIVING WITH LINT)
+//                for further details.
+
+//Jun add this(below), for FamesOS
+
+-e768                  //global struct member not referenced
+-e755                  //global macro 'Symbol' (Location) not referenced
+-e756                  //global typedef 'Symbol' (Location) not referenced 
+-e757                  //global declarator 'Symbol' (Location) not referenced
+-e759                  //header declaration for 'Symbol' could be moved from header to module
+-e765                  //external 'Symbol' (Location) could be made static
+-e750                  //local macro 'Symbol' not referenced
+-e818                  //Pointer parameter could be declared as pointing to const
+-e801                  //Use of goto is deprecated
+-sp4                   //sizeof(all pointer) = 4
+-esym(534,printf)
+-Ic:\tc\include
+-I.\os\include
+
+-e714                  //Symbol 'func()' not referenced
+-e753                  //Local enum variable not referenced
+
+//-u                   //unit checkout
+
+//----------检查级别统一控制到第三级，库头文件不检查
+-w3
+-wlib(0)
+
+//----------根据试用反映的部分语法问题，忽略对库头文件的告警
+-elib(10)              //一般是遇到编译器不认识的关键字，可增加关键字定义：+rw(关键字名称) 。
+-elib(19)              //无用的声明。
+-elib(46)              //按bit位定义的域应该为unsigned或int。
+-elib(91)              //代码一行超过了600。
+-elib(123)             //带参数的宏定义后面没有加括号造成隐患，忽略库头文件。
+-elib(129)             //是否是遇到某些没有声明的符号。
+-e641                  //把一个enum类型转换成int类型，无太大危险和后患。
+
+//----------根据CDMA事业部总结需要屏蔽的选项
+-e749                  //枚举中的部分成员定义了但是并没有使用。很多时候是为以后预留也没什么隐患。
+-e754                  //结构中的部分成员定义了但是并没有使用。很多时候是为以后预留也没什么隐患。
+-e829                  //由+headerwarn选项设定的禁止包含的头文件，不是很必要，建议剔除。
+  
+//----------补充部分
+-idlen(100)            //增加标识符识别长度，否则过长的标示符会报重复定义告警。
++v                     //屏蔽冗余信息, Jun change this line(-v => +v)
++fpc                   //允许指针强制类型转换后保留其左值特性。否则引发52号告警，例如：++(char *)p; 
++libclass(ansi,angle)  //设定库头文件的判定方式为ANSI_C和用<>包含的头文件。
+-e659                  //结构定义中最后的}后面没有定义符号、注释或者;号，属于格式规范问题。 
+-e788                  //屏蔽对switch中的enum没处理完的告警，但是保留787对没有default的告警
+-e715                  //屏蔽对函数参数没有使用的告警
+
+//----------根据实际项目反馈对一些具有普遍意义的屏蔽配置(2005-6-16 EPG)
+-epuc                  //禁止对指针指向的字符串类型其符号不一致告警。
+-e783                  //禁止对没有行结束符的告警（Line does not end with new-line）
+-e708                  //允许union初始化，联合初始化既然编译器支持就不会有问题，不支持的自己也会编译不过。
+-e91                   //代码行超长，缺省600，可以用+linebuf成倍增加。只要编译器支持就没有问题。
+-e793                  //代码中某些特性超过ANSIC规定的限制，比如标识符个数，但只要编译器支持就没有问题。
++fem                   //是否支持非紧靠式修饰符，如不能是pascal int f()只能是int pascal f();但只要编译器支持就没问题。
+-e46                   //定义结构的bit域时候建议用int类型,没有必要，char也可以，只要保证是unsigned就没有风险。
++fan                   //允许匿名union，只要编译器支持就没有问题。
++fas                   //允许匿名struct，只要编译器支持就没有问题。
