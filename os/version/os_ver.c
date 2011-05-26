@@ -24,9 +24,9 @@ static char FamesOS_AUTHOR[] =      "Jun";
 
 #define FamesOS_VersionMajor          0
 #define FamesOS_VersionMinor          7
-#define FamesOS_VersionSerial         0
+#define FamesOS_VersionSerial         1
 
-#define FamesOS_VersionString       "0.7.0"
+#define FamesOS_VersionString       "0.7.1"
 
 INT32U apical os_get_version(void)
 {
@@ -64,7 +64,7 @@ STRING apical os_get_buildtime(void)
 STRING apical os_get_description(void)
 {
     return "FamesOS Version "FamesOS_VersionString" "
-           "Jun(FamesOS@126.com) "
+           "Jun(wsj20369@yahoo.com.cn) "
            "Build "__DATE__" "__TIME__" "
            "";
 }

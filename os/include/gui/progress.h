@@ -29,8 +29,8 @@ typedef struct progress_assoc_s progress_assoc_t;
 #define PROGRESS_STYLE_CLIENT_BDR       0x0002       /* CLIENT边框 */
 #define PROGRESS_STYLE_MODAL_FRAME      0x0004       /* 模式框     */
 #define PROGRESS_STYLE_XP_BORDER        0x0010       /* XP风格框   */
-#define PROGRESS_STYLE_SMOOTH           0x0020       /* 居中       */
-#define PROGRESS_ALIGN_VERTICAL         0x0100       /* 左对齐     */
+#define PROGRESS_STYLE_SMOOTH           0x0020       /* 平滑       */
+#define PROGRESS_ALIGN_VERTICAL         0x0100       /* 垂直       */
 
 
 /*-----------------------------------------------------------------------------------------

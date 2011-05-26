@@ -76,7 +76,7 @@ gui_widget * input_dialog_initialize(dialog_input_header * input_dialog)
     /* OK°´Å¥ */
     __t  = (width-160);
     __t /= 3;
-    widget = gui_create_widget(GUI_WIDGET_BUTTON, (__t-20), (height-36), 128, 30, 0, 0, 1, 0);
+    widget = gui_create_widget(GUI_WIDGET_BUTTON, (__t-20), (height-36), 128, 30, 0, 0, font, 0);
     if(!widget)
         goto some_error;
     input_dialog->ok_button = widget;
@@ -86,7 +86,7 @@ gui_widget * input_dialog_initialize(dialog_input_header * input_dialog)
 
     /* CANCEL°´Å¥ */
     __t += 128;
-    widget = gui_create_widget(GUI_WIDGET_BUTTON, (width-__t), (height-36), 128, 30, 0, 0, 1, 0);
+    widget = gui_create_widget(GUI_WIDGET_BUTTON, (width-__t), (height-36), 128, 30, 0, 0, font, 0);
     if(!widget)
         goto some_error;
     input_dialog->cancel_button = widget;
