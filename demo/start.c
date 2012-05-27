@@ -26,22 +26,30 @@ void __task demo_task(void * data)
 }
 
 enum {
-    __id_name,
-    __id_sex,
-    __id_old,
-    __id_sss,
+    __id_name1,
+    __id_sex1,
+    __id_old1,
+    __id_sss1,
+    __id_name2,
+    __id_sex2,
+    __id_old2,
+    __id_sss2,
+    __id_name3,
+    __id_sex3,
+    __id_old3,
+    __id_sss3,
 };
 
 DECLARE_INPUT_DIALOG_START(abcde)
-INPUT_DIALOG_ITEM("姓名: ", __id_name, 8, 10,   40, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("性别: ", __id_sex,  8, 10,   80, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("年龄: ", __id_old,  8, 10,  120, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("姓名: ", __id_name, 8, 150,  40, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("性别: ", __id_sex,  8, 150,  80, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("年龄: ", __id_old,  8, 150, 120, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("姓名: ", __id_name, 8, 280,  40, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("性别: ", __id_sex,  8, 280,  80, 120, 32, 0, 0, "XXXXXXXXXXXXX")
-INPUT_DIALOG_ITEM("年龄: ", __id_old,  8, 280, 120, 120, 32, 0, 0, "XXXXXXXXXXXXX")
+INPUT_DIALOG_ITEM("姓名: ", __id_name1, 8, 10,   40, 120, 32, 0, 0, "student name")
+INPUT_DIALOG_ITEM("性别: ", __id_sex1,  8, 10,   80, 120, 32, 0, 0, "sex: M or F")
+INPUT_DIALOG_ITEM("年龄: ", __id_old1,  8, 10,  120, 120, 32, 0, 0, "years old?")
+INPUT_DIALOG_ITEM("姓名: ", __id_name2, 8, 150,  40, 120, 32, 0, 0, "student name")
+INPUT_DIALOG_ITEM("性别: ", __id_sex2,  8, 150,  80, 120, 32, 0, 0, "M/F")
+INPUT_DIALOG_ITEM("年龄: ", __id_old2,  8, 150, 120, 120, 32, 0, 0, "how old are you?")
+INPUT_DIALOG_ITEM("姓名: ", __id_name3, 8, 280,  40, 120, 32, 0, 0, "what's your name")
+INPUT_DIALOG_ITEM("性别: ", __id_sex3,  8, 280,  80, 120, 32, 0, 0, "boy or girl? M/F")
+INPUT_DIALOG_ITEM("年龄: ", __id_old3,  8, 280, 120, 120, 32, 0, 0, "how old are you?")
 INPUT_DIALOG_SET(abcde, "输入对话框演示", NULL, 100, 100, 500, 250, 0, 0, 0, FORM_STYLE_TITLE|FORM_STYLE_XP_BORDER);
 DECLARE_INPUT_DIALOG_ENDED(abcde)
 
@@ -51,13 +59,20 @@ gui_widget * test;
 gui_widget * view;
 
 gui_widget * progress1;
-
+
 gui_widget * dialog;
 
 BMPINFO icon;
     
 INT16U style = 0;
 COLOR  color = 0, bkcolor = 0;
+
+enum {
+    __id_name,
+    __id_sex,
+    __id_old,
+    __id_sss,
+};
 
 #define __style DRAW_OPT_ALIGN_CENTER|DRAW_OPT_FIL_BG
 
@@ -229,6 +244,140 @@ void init_view(gui_widget * view)
                           1);
 }
 
+void dialog_prepare(int id, char * buf, void * data, INT16U opt)
+{
+    struct student * t;
+    int index, i;
+
+    switch (id) {
+        case __id_name1:
+        case __id_sex1:
+        case __id_old1:
+        case __id_sss1:
+            index = 0;
+	    break;
+        case __id_name2:
+        case __id_sex2:
+        case __id_old2:
+        case __id_sss2:
+            index = 1;
+	    break;
+        case __id_name3:
+        case __id_sex3:
+        case __id_old3:
+        case __id_sss3:
+            index = 2;
+	    break;
+        default:
+	    buf[0] = 0; /* clear the output buf */
+	    return;
+    }
+
+    t = all_students;   
+
+    for(i=0; i<index; i++){
+        if(t == NULL)
+            return;
+        t = t->next;
+    }
+    if(t == NULL)
+            return;
+
+    switch (id) {
+        case __id_name1:
+        case __id_name2:
+        case __id_name3:
+            strcpy(buf, t->name);
+            break;
+        case __id_sex1:
+        case __id_sex2:
+        case __id_sex3:
+            sprintf(buf, "%c", t->sex);
+            break;
+        case __id_old1:
+        case __id_old2:
+        case __id_old3:
+            sprintf(buf, "%d", t->old);
+            break;
+        case __id_sss1:
+        case __id_sss2:
+        case __id_sss3:
+            sprintf(buf, "%s", t->comment);
+            break;
+        default:
+            break;
+    }
+
+    return;
+}
+
+int dialog_finish(int id, char * buf, void * data, KEYCODE key)
+{
+    struct student * t;
+    int index, i;
+
+    switch (id) {
+        case __id_name1:
+        case __id_sex1:
+        case __id_old1:
+        case __id_sss1:
+            index = 0;
+	    break;
+        case __id_name2:
+        case __id_sex2:
+        case __id_old2:
+        case __id_sss2:
+            index = 1;
+	    break;
+        case __id_name3:
+        case __id_sex3:
+        case __id_old3:
+        case __id_sss3:
+            index = 2;
+	    break;
+        default:
+	    return 1;
+    }
+
+    t = all_students;   
+
+    for(i=0; i<index; i++){
+        if(t == NULL)
+            return 1;
+        t = t->next;
+    }
+    if(t == NULL)
+            return 1;
+
+    switch (id) {
+        case __id_name1:
+        case __id_name2:
+        case __id_name3:
+            strcpy(t->name, buf);
+            break;
+        case __id_sex1:
+        case __id_sex2:
+        case __id_sex3:
+            t->sex = toupper(buf[0]);
+	    if(t->sex != 'M' && t->sex != 'F')
+                return 0;
+            break;
+        case __id_old1:
+        case __id_old2:
+        case __id_old3:
+            t->old = atoi(buf);
+            break;
+        case __id_sss1:
+        case __id_sss2:
+        case __id_sss3:
+            strcpy(t->comment, buf);
+            break;
+        default:
+            break;
+    }
+
+    return 1;
+}
 
 void demo_init_gui(void)
 {
@@ -315,6 +464,7 @@ void __task start(void * data)
         char buf[64] = {0, };
 
         key = gui_edit_input(test, buf, 32, 0);
+	/* use superkey alt-x-k to quit! */
         switch(key){
             case UP:
                 gui_view_move_up(view);
@@ -327,9 +477,6 @@ void __task start(void * data)
                 break;
             case PGDN:
                 gui_view_page_down(view);
-                break;
-            case ESC:
-                ExitApplication();
                 break;
         }
         switch(buf[0]){
@@ -375,7 +522,7 @@ void __task start(void * data)
             case 'd':
             case 'D':
                 gui_set_root_widget(dialog);
-                waitkey(0L);
+                input_dialog_method(&abcde, dialog_prepare, dialog_finish, NULL, 1);
                 gui_set_root_widget(form);
                 break;
             case 'e':
