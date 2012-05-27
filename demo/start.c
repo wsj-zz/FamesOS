@@ -255,33 +255,35 @@ void dialog_prepare(int id, char * buf, void * data, INT16U opt)
         case __id_old1:
         case __id_sss1:
             index = 0;
-	    break;
+            break;
         case __id_name2:
         case __id_sex2:
         case __id_old2:
         case __id_sss2:
             index = 1;
-	    break;
+            break;
         case __id_name3:
         case __id_sex3:
         case __id_old3:
         case __id_sss3:
             index = 2;
-	    break;
+            break;
         default:
-	    buf[0] = 0; /* clear the output buf */
-	    return;
+            buf[0] = 0; /* clear the output buf */
+            return;
     }
 
     t = all_students;   
 
     for(i=0; i<index; i++){
         if(t == NULL)
-            return;
+            break;
         t = t->next;
     }
-    if(t == NULL)
-            return;
+    if(t == NULL) {
+        buf[0] = 0;
+        return;
+    }
 
     switch (id) {
         case __id_name1:
@@ -322,28 +324,28 @@ int dialog_finish(int id, char * buf, void * data, KEYCODE key)
         case __id_old1:
         case __id_sss1:
             index = 0;
-	    break;
+            break;
         case __id_name2:
         case __id_sex2:
         case __id_old2:
         case __id_sss2:
             index = 1;
-	    break;
+            break;
         case __id_name3:
         case __id_sex3:
         case __id_old3:
         case __id_sss3:
             index = 2;
-	    break;
+            break;
         default:
-	    return 1;
+            return 1;
     }
 
     t = all_students;   
 
     for(i=0; i<index; i++){
         if(t == NULL)
-            return 1;
+            break;
         t = t->next;
     }
     if(t == NULL)
@@ -359,7 +361,7 @@ int dialog_finish(int id, char * buf, void * data, KEYCODE key)
         case __id_sex2:
         case __id_sex3:
             t->sex = toupper(buf[0]);
-	    if(t->sex != 'M' && t->sex != 'F')
+            if(t->sex != 'M' && t->sex != 'F')
                 return 0;
             break;
         case __id_old1:
@@ -464,7 +466,7 @@ void __task start(void * data)
         char buf[64] = {0, };
 
         key = gui_edit_input(test, buf, 32, 0);
-	/* use superkey alt-x-k to quit! */
+        /* use superkey alt-x-k to quit! */
         switch(key){
             case UP:
                 gui_view_move_up(view);
