@@ -47,9 +47,9 @@ INPUT_DIALOG_ITEM("年龄: ", __id_old1,  8, 10,  120, 120, 32, 0, 0, "years old?"
 INPUT_DIALOG_ITEM("姓名: ", __id_name2, 8, 150,  40, 120, 32, 0, 0, "student name")
 INPUT_DIALOG_ITEM("性别: ", __id_sex2,  8, 150,  80, 120, 32, 0, 0, "M/F")
 INPUT_DIALOG_ITEM("年龄: ", __id_old2,  8, 150, 120, 120, 32, 0, 0, "how old are you?")
-INPUT_DIALOG_ITEM("姓名: ", __id_name3, 8, 280,  40, 120, 32, 0, 0, "what's your name")
-INPUT_DIALOG_ITEM("性别: ", __id_sex3,  8, 280,  80, 120, 32, 0, 0, "boy or girl? M/F")
-INPUT_DIALOG_ITEM("年龄: ", __id_old3,  8, 280, 120, 120, 32, 0, 0, "how old are you?")
+INPUT_DIALOG_ITEM("姓名: ", __id_name3, 8, 280,  40, 160, 32, 0, 0, "what's your name")
+INPUT_DIALOG_ITEM("性别: ", __id_sex3,  8, 280,  80, 160, 32, 0, 0, "boy or girl? M/F")
+INPUT_DIALOG_ITEM("年龄: ", __id_old3,  8, 280, 120, 160, 32, 0, 0, "how old are you?")
 INPUT_DIALOG_SET(abcde, "输入对话框演示", NULL, 100, 100, 500, 250, 0, 0, 0, FORM_STYLE_TITLE|FORM_STYLE_XP_BORDER);
 DECLARE_INPUT_DIALOG_ENDED(abcde)
 
