@@ -231,11 +231,16 @@ BOOL guical gui_edit_blink_set(gui_widget * edit, int index, INT16U opt)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_edit_input()
  *
+ * 参数:    @edit    the edit widget which will perform input
+ *          @buf     the output buffer, should be of sufficient size
+ *          @bytes   the max number of bytes can be entered (<=128)
+ *          @option  not used currently
+ *
  * 描述:    EDIT控件输入, 最多128个字符
 **---------------------------------------------------------------------------------------*/
 #define GUI_INPUT_MAX_BYTES   128   /* 一次可输入的最大字节数        */
 
-KEYCODE gui_edit_input(gui_widget * edit, char * buf, int bytes, INT16U option)
+KEYCODE gui_edit_input(gui_widget * edit, char * __BUF buf, int bytes, INT16U option)
 {
     int  i, index, first, blink;
     char __buf[GUI_INPUT_MAX_BYTES+2];

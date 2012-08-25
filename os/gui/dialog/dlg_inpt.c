@@ -359,7 +359,7 @@ void input_dialog_alert(dialog_input_header * input_dialog, char * s, COLOR aler
     gui_set_widget_bkcolor(input_dialog->status_bar, alert_color);
     gui_set_widget_color(input_dialog->status_bar, 0);
     gui_label_set_text(input_dialog->status_bar, s);
-    waitkey(1300L);
+    TaskSleep(1200L);
     gui_set_widget_color(input_dialog->status_bar, 0);    
     gui_set_widget_bkcolor(input_dialog->status_bar, input_dialog->bkcolor);    
 }

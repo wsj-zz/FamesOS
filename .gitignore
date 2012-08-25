@@ -8,5 +8,8 @@
 *.LIB
 *.exe
 *.EXE
+*.h~
+*.c~
+os/include/CHKINC*
 !history.txt
 !os/doc/*
