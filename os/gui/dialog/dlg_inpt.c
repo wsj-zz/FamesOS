@@ -105,7 +105,7 @@ gui_widget * input_dialog_initialize(dialog_input_header * input_dialog)
         font = item->font;
         switch(item->type){
             case INPUT_DIALOG_ITEM_TYPE_EDIT:
-                __len = STRLEN(item->caption)*8; /* 总认为一个字符占8个象素, 必要时需修改 */
+                __len = STRLEN(item->caption) * get_font_width(font);
                 __len += 6;
                 widget = gui_create_widget(GUI_WIDGET_LABEL, x, y, __len, height, color, bkcolor, font, LABEL_STYLE_TRANSPARENT);
                 if(!widget)
