@@ -64,7 +64,7 @@ BOOL  apical draw_font_for_widget(int x, int y, int width, int height,
                         COLOR color, COLOR bkcolor,
                         int font, INT16U opt);
 void  apical load_sys_font(void); /* 加载系统默认字体 */
-
+int   apical get_font_width(int font); /* 返回某字体的宽度, 默认值是8 */
 
 #endif /* #ifndef FAMES_FONT_H                */
 /*==============================================================================================

@@ -676,6 +676,43 @@ void apical load_sys_font(void)
     register_font(&_sys_font_hz, &_sys_font_asc);
 }
 
+/*----------------------------------------------------------------------------------------------
+ * 函数:    get_font_width()
+ *  
+ * 描述:    返回某字体的宽度, 默认值是8
+**--------------------------------------------------------------------------------------------*/
+int apical get_font_width(int font)
+{
+    FONTINFO *ft;
+    int ret = 8;
+
+    lock_kernel();
+
+    if (font < 0 || font >= font_registered)
+        goto out;
+
+    /* 先看英文字符 */
+    ft = &font_register_buff[font].asc;
+    if (ft->loaded == YES) {
+        ret = ft->width;
+        goto out;
+    }
+
+    /* 再看中文字符 */
+    ft = &font_register_buff[font].hz;
+    if (ft->loaded == YES) {
+        ret = ft->width / 2;
+        if (ft->width & 1)
+            ret++;
+        goto out;
+    }
+
+out:
+    unlock_kernel();
+
+    return ret;
+}
+
 
 /*==============================================================================================
  * 
