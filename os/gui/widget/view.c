@@ -14,7 +14,6 @@
  * 
 **---------------------------------------------------------------------------------------*/
 #define VIEW_MAX_FIELDS     32      /* 可同时支持的最大字段数              */
-#define VIEW_CHAR_PIXEL     8       /* 显示一个字符一般需要的宽度(象素数)  */
 #define VIEW_MAX_RECORDS    64      /* 可同时显示的最大记录数(1页)         */
 #define VIEW_MAX_OLD_SIZE   256     /* size_per_record_for_old的最大值     */
 
@@ -80,7 +79,7 @@ BOOL guical gui_view_init_private( gui_widget * view,
     gui_view_private * t, * t2;
     INT32S bytes;
     int fields_nr, __temp;
-    int x, width;
+    int x, width, font_width;
     BOOL retval;
     int field_old_buf_ptr;
     int size_per_record_for_old;
@@ -100,6 +99,8 @@ BOOL guical gui_view_init_private( gui_widget * view,
 
     if(view->type != GUI_WIDGET_VIEW)
         return fail;
+
+    font_width = get_font_width(view->font);
 
     size_per_record_for_old = 0;
     fields_nr = 0;
@@ -179,8 +180,8 @@ BOOL guical gui_view_init_private( gui_widget * view,
         fields_nr = 0;
         x = 0;
         while(fields->caption){     /* 处理字段定义               */
-            width = (fields->bytes_for_width * VIEW_CHAR_PIXEL);
-            width += VIEW_CHAR_PIXEL; /* 加多几个象素 */
+            width = (fields->bytes_for_width * font_width);
+            width += font_width; /* 加多几个象素 */
             t->x_width_fields[fields_nr] = width;
             t->fields_caption[fields_nr] = fields->caption;
             fields->offset_x = x;
@@ -739,7 +740,7 @@ out_directly:
  *
  * 描述:    由订单的选中状态变化而引起的背景重绘
 **---------------------------------------------------------------------------------------*/
-void ____draw_blank_for_records(int x, int y, int y2, gui_view_private * t, 
+void ____draw_blank_for_records(int x, int y, int x2, int y2, gui_view_private * t,
                                 COLOR bkcolor, COLOR marker_bkcolor, INT16U style)
 {
     int j, to_left, zoom_out;
@@ -764,7 +765,10 @@ void ____draw_blank_for_records(int x, int y, int y2, gui_view_private * t,
     j ++;
     /* 后面的字段~~~*/
     for(; j<(t->fields_nr); j++){
-        gdi_draw_box(x, y, (t->x_width_fields[j]-to_left)+x, y2, bkcolor);
+        int tmp_x2 = (t->x_width_fields[j]-to_left)+x;
+        if (tmp_x2 > x2)
+            tmp_x2 = x2;
+        gdi_draw_box(x, y, tmp_x2, y2, bkcolor);
         x += t->x_width_fields[j];
     }
 }
@@ -1055,7 +1059,7 @@ void gui_draw_view(gui_widget * view)
                 x  -= 1; /* 左边界 */
                 y  += (___old * height_per_row); /* 上边界 */
                 y1  = (y + height_per_row) - 2; /* 下边界 */
-                ____draw_blank_for_records(x, y, y1, t, bkcolor, view->bkcolor, view->style);
+                ____draw_blank_for_records(x, y, x1, y1, t, bkcolor, view->bkcolor, view->style);
             }
             MEMSET(records_oldbuf(___cur), 0, sizeof_old_buf_per_record); /*lint !e679*/
             x = __x;  /* 还原x,y的值 */
@@ -1068,7 +1072,7 @@ void gui_draw_view(gui_widget * view)
             x  -= 1;  /* 左边界 */
             y  += (___cur * height_per_row); /* 上边界 */
             y1  = (y + height_per_row) - 2;  /* 下边界 */
-            ____draw_blank_for_records(x, y, y1, t, bkcolor, view->bkcolor, view->style);
+            ____draw_blank_for_records(x, y, x1, y1, t, bkcolor, view->bkcolor, view->style);
         }
 
         if(view->style & VIEW_STYLE_NONE_FIRST)
@@ -1081,7 +1085,7 @@ void gui_draw_view(gui_widget * view)
                 MEMSET(old_buf_for_records, 0, sizeof_old_buf_per_record);
                 x  -= 1; /* 左边界 */
                 y1  = (y + height_per_row) - 2; /* 下边界 */
-                ____draw_blank_for_records(x, y, y1, t, bkcolor, view->bkcolor, view->style);
+                ____draw_blank_for_records(x, y, x1, y1, t, bkcolor, view->bkcolor, view->style);
             }
         }
         if(first_index_old == 0){ /* 换之前是第1页??? */
@@ -1092,7 +1096,7 @@ void gui_draw_view(gui_widget * view)
                 MEMSET(old_buf_for_records, 0, sizeof_old_buf_per_record);
                 x  -= 1; /* 左边界 */
                 y1  = (y + height_per_row) - 2; /* 下边界 */
-                ____draw_blank_for_records(x, y, y1, t, bkcolor, view->bkcolor, view->style);
+                ____draw_blank_for_records(x, y, x1, y1, t, bkcolor, view->bkcolor, view->style);
             }
         }
         skip__first_index_changed:
