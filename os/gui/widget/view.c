@@ -568,6 +568,9 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
     if(!view)
         goto out_directly;
 
+    if(!(view->flag & GUI_WIDGET_FLAG_VISIBLE))
+        goto out_directly;
+
     t = (gui_view_private *)view->private_data;
     if(!t)
         goto out_directly;

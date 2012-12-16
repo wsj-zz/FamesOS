@@ -82,6 +82,7 @@ BOOL guical gui_hide_widget(gui_widget * c)
             #endif
         }
     }
+    c->flag &= ~GUI_WIDGET_FLAG_VISIBLE;
     unlock_kernel();
 
     return ok;
@@ -615,7 +616,7 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
     if(!c)
         return fail;
 
-    switch(c->type){
+    switch (c->type) {
         case GUI_WIDGET_FORM:
             gui_draw_form(c);
             break;
@@ -649,12 +650,13 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
         case GUI_WIDGET_NONE:
             break;
         default:
-            if(!__gui_draw_usr_widget(c)){
+            if (!__gui_draw_usr_widget(c)) {
                 ;/* do something here */
             }
             break;
     }
     c->flag &= ~GUI_WIDGET_FLAG_REFRESH;
+    c->flag |=  GUI_WIDGET_FLAG_VISIBLE;
 
     return ok;
 }
