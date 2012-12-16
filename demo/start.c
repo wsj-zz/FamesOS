@@ -25,6 +25,22 @@ void __task demo_task(void * data)
     }
 }
 
+static FONTINFO font_asc_16 = {NO, FONT_TYPE_ASCII,   0,  8, 16, 1,  0,  "ASC16",     NULL};
+static FONTINFO font_hz_16  = {NO, FONT_TYPE_GB2312,  0, 16, 16, 2,  0,  "HZK16",     NULL};
+static FONTINFO font_asc_48 = {NO, FONT_TYPE_ASCII,   0, 24, 48, 3, 32,  "ASC48",     NULL};
+
+int font16, font48;
+
+void load_fonts(void)
+{
+    load_font(&font_asc_16);
+    load_font(&font_hz_16);
+    load_font(&font_asc_48);
+
+    font16 = register_font(&font_hz_16, &font_asc_16);
+    font48 = register_font(NULL, &font_asc_48);
+}
+
 enum {
     __id_name1,
     __id_sex1,
@@ -57,6 +73,9 @@ gui_widget * form;
 gui_widget * edit;
 gui_widget * test;
 gui_widget * view;
+
+gui_widget * label;
+gui_widget * button;
 
 gui_widget * progress1;
 
@@ -385,6 +404,7 @@ void demo_init_gui(void)
 {
     InitBMPINFO(&icon);
     LoadBmp(&icon, "icon.bmp");
+    load_fonts();
     
     form = gui_create_widget(GUI_WIDGET_FORM, 160, 150, 622, 420, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
     if(!form)
@@ -398,6 +418,18 @@ void demo_init_gui(void)
         goto err;
     gui_edit_init_private(edit, 128);
     gui_edit_set_text(edit, "这是一个文本框");
+
+    button = gui_create_widget(GUI_WIDGET_BUTTON, 200, 132, 220, 80, COLOR_YELLOW, 64, font16, BUTTON_STYLE_CLIENT_BDR);
+    if(!edit)
+        goto err;
+    gui_button_init_private(button, 128);
+    gui_button_set_caption(button, "将那个Label盖住");
+
+    label = gui_create_widget(GUI_WIDGET_LABEL, 80, 100, 460, 64, color, bkcolor, font48, LABEL_STYLE_SUBSIDE);
+    if(!edit)
+        goto err;
+    gui_label_init_private(label, 128);
+    gui_label_set_text(label, "Startting...");
 
     test = gui_create_widget(GUI_WIDGET_EDIT, 80, 330, 460, 32, 0, 0, 0, 0);
     if(!test)
@@ -423,6 +455,8 @@ void demo_init_gui(void)
     gui_widget_link(form, edit);
     gui_widget_link(form, test);
     gui_widget_link(form, view);
+    gui_widget_link(form, label);
+    gui_widget_link(form, button);
 
     gui_widget_link(NULL, dialog);
 
@@ -436,6 +470,26 @@ err:
     return;
 }
 
+void __task refresh_task(void * data)
+{
+    long count = 0;
+    char buf[64];
+    int flag = 0;
+
+    data = data;
+
+    for (;;) {
+        sprintf(buf, "[%d%%] %ld", CPU_USED, count);
+        gui_label_set_text(label, buf);
+        if (flag)
+		gui_set_widget_color(button, 64);
+	else
+		gui_set_widget_color(button, COLOR_YELLOW);
+	count *= 3247;
+	count += 23732;
+	TaskSleep(200);
+    }
+}
 
 /*------------------------------------------------------------------------------------
  * 函数:    start()
@@ -458,6 +512,7 @@ void __task start(void * data)
     */
 
     demo_init_gui();
+    TaskCreate(refresh_task, NULL, "refresh", NULL, 2048, 8, TASK_CREATE_OPT_NONE);
 
     OpenConsole();
 
