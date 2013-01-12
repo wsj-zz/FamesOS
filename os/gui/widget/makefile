@@ -9,8 +9,8 @@ tmpfile2    = _tmp2.lib
 Lib         = $(dstfile)
 LibList1    =  pool.obj  widget.obj  common.obj  usr_wid.obj  sys_mntr.obj  dashed.obj  groupbox.obj
 LibFile1    = +pool.obj +widget.obj +common.obj +usr_wid.obj +sys_mntr.obj +dashed.obj +groupbox.obj
-LibList2    =  form.obj  label.obj  edit.obj  button.obj  progress.obj  picture.obj  view.obj
-LibFile2    = +form.obj +label.obj +edit.obj +button.obj +progress.obj +picture.obj +view.obj
+LibList2    =  form.obj  label.obj  edit.obj  button.obj  progress.obj  picture.obj  view.obj  desktop.obj
+LibFile2    = +form.obj +label.obj +edit.obj +button.obj +progress.obj +picture.obj +view.obj +desktop.obj
 
 pool.obj: pool.c $(HEADFILE)
 	$(COMPILER) pool.c 
@@ -54,6 +54,8 @@ sys_mntr.obj: sys_mntr.c $(HEADFILE)
 view.obj: view.c $(HEADFILE)
 	$(COMPILER) view.c
 
+desktop.obj: desktop.c $(HEADFILE)
+	$(COMPILER) desktop.c
 
 $(tmpfile1): $(LibList1)
 	del  $(tmpfile1)

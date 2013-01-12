@@ -54,7 +54,6 @@ BOOL guical gui_show_widget(gui_widget * c)
     unlock_kernel();
 
     return ok;
-
 }
 
 /*------------------------------------------------------------------------------------
@@ -142,9 +141,11 @@ BOOL guical gui_refresh_widget(gui_widget * c)
 
     if(c->flag & GUI_WIDGET_FLAG_HIDE)
         return ok;
-    
+
+    #if 0
     if(c->flag & GUI_WIDGET_FLAG_REFRESH)
         return ok;
+    #endif
 
     lock_kernel();
     c->flag |= GUI_WIDGET_FLAG_REFRESH;
@@ -464,6 +465,28 @@ BOOL guical gui_set_widget_type(gui_widget * c, int type)
 }
 
 /*------------------------------------------------------------------------------------
+ * 函数:    gui_set_widget_draw_method()
+ *
+ * 描述:    设置控件的user_draw_method
+ *
+ * 参数:    draw_fn: 用户指定的画图方法, NULL为使用默认的画图方法
+**----------------------------------------------------------------------------------*/
+BOOL guical gui_set_widget_draw_method(gui_widget * c, void (*draw_fn)(gui_widget *))
+{
+    FamesAssert(c);
+
+    if(!c)
+        return fail;
+
+    lock_kernel();
+    c->user_draw_method = draw_fn;
+    gui_refresh_widget(c);
+    unlock_kernel();
+
+    return ok;
+}
+
+/*------------------------------------------------------------------------------------
  * 函数:    gui_widget_link()
  *
  * 描述:    将一个控件树连接到另一个控件树中
@@ -588,6 +611,14 @@ gui_widget * guical gui_create_widget(
     gui_set_widget_bkcolor(c, bkcolor);
     gui_set_widget_font(c, font);
     gui_set_widget_style(c, style);
+    gui_set_widget_draw_method(c, NULL);
+
+    if (type == GUI_WIDGET_DESKTOP) { /* 桌面特殊了一点: 其位置及大小是确定的 */
+        int scr_w, scr_h;
+        gdi_get_screen_size(&scr_w, &scr_h);
+        gui_set_widget_location(c, 0, 0);
+        gui_set_widget_dimension(c, scr_w, scr_h);
+    }
 
     return c;
 }
@@ -615,6 +646,11 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
 
     if(!c)
         return fail;
+
+    if (c->user_draw_method) {
+        (*c->user_draw_method)(c);
+        goto draw_ok;
+    }
 
     switch (c->type) {
         case GUI_WIDGET_FORM:
@@ -647,6 +683,9 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
         case GUI_WIDGET_DASHEDLINE:
             gui_draw_dashedline(c);
             break;
+        case GUI_WIDGET_DESKTOP:
+            gui_draw_desktop(c);
+            break;
         case GUI_WIDGET_NONE:
             break;
         default:
@@ -655,6 +694,8 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
             }
             break;
     }
+
+draw_ok:
     c->flag &= ~GUI_WIDGET_FLAG_REFRESH;
     c->flag |=  GUI_WIDGET_FLAG_VISIBLE;
 

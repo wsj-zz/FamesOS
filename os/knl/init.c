@@ -450,17 +450,16 @@ void __task init(void *data)
 **--------------------------------------------------------------------------------------------*/
 void __do_super_key(KEYCODE key)
 {
-    gui_widget * root;
+    gui_window_t * win;
     
     switch(key){
         case ALT_K:
             ExitApplication();
             break;
         case ALT_S:
-            root = gui_get_root_widget();
-            if(root)
-                gui_refresh_widget(root);
-            gui_put_root_widget();
+            gui_for_each_window(win) {
+                gui_refresh_window(win);
+            }
             break;
         default:
             break;

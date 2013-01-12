@@ -19,6 +19,8 @@ void guical __exit gui_widget_pool_free(void);
 gui_widget  * guical gui_alloc_widget(void);
 void          guical gui_free_widget(gui_widget * gc);
 
+extern gui_widget * gui_global_root_widget; /* 控件的总根 */
+
 
 #endif /* #ifndef FAMES_GUI_WIDGET_POOL_H */
 

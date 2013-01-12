@@ -12,9 +12,9 @@
 *±àÒë¿ª¹Ø-----------------------------------------------------------------------------
 */
 #define FAMES_VESA_EN         1           /* ÊÇ·ñÒªÉú³ÉX-DRIVER´úÂë,    1=ÊÇ      */
-#define FAMES_VESA_V_FUNC_EN  1           /* ÊÇ·ñÒªÉú³ÉÄ³Ð©×ÝÏò»­Ïß´úÂë,1=ÊÇ      */
 
 #define FAMES_VESA_NOP()                  /* NON-OPERATION in X-DRIVER            */ 
+
 /*
 *ÊÓÆµ»º³åµØÖ·-------------------------------------------------------------------------
 */
@@ -101,6 +101,9 @@ extern SCB SCREEN;
 #if     FAMES_VESA_EN == 1
 INT16S  X_OPEN_GRAPH(void);                   /* ´ò¿ªÍ¼ÐÎÄ£Ê½                       */
 INT16S  X_CLOSE_GRAPH(void);                  /* ¹Ø±ÕÍ¼ÐÎÄ£Ê½                       */
+INT16S  X_GET_SCREEN_SIZE(INT16S * width,     /* ¶ÁÈ¡ÆÁÄ»´óÐ¡                       */
+                          INT16S * height
+                         );
 INT16S  X_SET_PALETTE(INT16S index,           /* ÉèÖÃÄ³Ò»ÑÕÉ«µÄµ÷É«°å               */  
                       INT08U red,
                       INT08U green,
@@ -150,7 +153,6 @@ INT16S  X_DRAW_H_BITMAP_BGMAP(INT16S x,       /* ¸ù¾ÝÎ»Ä£Ê½»­µã(ºáÏò), ±³¾°ÎªÍ¼Ð
                               COLOR  color, 
                               COLOR  bgcolors[]
                              );
-#if     FAMES_VESA_V_FUNC_EN == 1
 INT16S  X_DRAW_V_IMAGE(INT16S x,              /* °´ÑÕÉ«Ó³Ïó(IMAGE)´¹Ö±»­Ïß          */
                        INT16S y, 
                        INT16S y2, 
@@ -173,24 +175,6 @@ INT16S  X_DRAW_V_BITMAP_BGMAP(INT16S x,       /* ¸ù¾ÝÎ»Ä£Ê½»­µã(×ÝÏò), ±³¾°ÎªÍ¼Ð
                               COLOR  color, 
                               COLOR  bgcolors[]
                              );
-#else                                         /* #if FAMES_GDI_V_FUNC_EN==1    */
-#define X_DRAW_V_IMAGE(a,b,c,d)          FAMES_GDI_NOP()
-#define X_DRAW_V_BITMAP(a,b,c,d)         FAMES_GDI_NOP()
-#define X_DRAW_V_BITMAP_BG(a,b,c,d,e)    FAMES_GDI_NOP()
-#define X_DRAW_V_BITMAP_BGMAP(a,b,c,d,e) FAMES_GDI_NOP()
-#endif                                        /* #if FAMES_GDI_V_FUNC_EN==1    */
-INT16S  X_DRAW_RECT(INT16S x,                 /* »­¾ØÐÎ                             */
-                    INT16S y,
-                    INT16S x2,
-                    INT16S y2,
-                    COLOR  color
-                   );
-INT16S  X_DRAW_BOX( INT16S x,                 /* »­ÊµÌå¾ØÐÎ                         */
-                    INT16S y,
-                    INT16S x2,
-                    INT16S y2,
-                    COLOR  color
-                  );
 #else                                         /* #if FAMES_GDI_EN==1           */
 /*
 #define X_OPEN_GRAPH()                   FAMES_GDI_NOP()
@@ -210,8 +194,6 @@ INT16S  X_DRAW_BOX( INT16S x,                 /* »­ÊµÌå¾ØÐÎ                     
 #define X_DRAW_V_BITMAP_BG(a,b,c,d,e)    FAMES_GDI_NOP()
 #define X_DRAW_H_BITMAP_BGMAP(a,b,c,d,e) FAMES_GDI_NOP()
 #define X_DRAW_V_BITMAP_BGMAP(a,b,c,d,e) FAMES_GDI_NOP()
-#define X_DRAW_RECT(a,b,c,d,e)           FAMES_GDI_NOP()
-#define X_DRAW_BOX(a,b,c,d,e)            FAMES_GDI_NOP()
 */
 #endif                                        /* #if FAMES_VESA_EN==1           */
 

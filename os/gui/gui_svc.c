@@ -68,7 +68,7 @@ BOOL gui_service_msg_handler(HANDLE task, MSGCB * msg)
 **---------------------------------------------------------------------------------------*/
 void __daemon gui_service_daemon(void * data)
 {
-    gui_widget * root_widget;
+    gui_window_t * w;
     INT32U sleep_ms;
     prepare_atomic()
 
@@ -87,11 +87,10 @@ void __daemon gui_service_daemon(void * data)
         in_atomic();
         CurrentTCB->TaskTimer = 80L; /* set for calc run time */
         out_atomic();
-        root_widget = gui_get_root_widget();
-        if(root_widget){
-            gui_root_widget_action(root_widget);
-        }
-        gui_put_root_widget();
+        lock_kernel();
+        gui_for_each_window(w)
+            gui_window_action(w);
+        unlock_kernel();
         in_atomic();
         sleep_ms = CurrentTCB->TaskTimer;
         out_atomic();

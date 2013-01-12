@@ -28,6 +28,10 @@ struct gui_widget_s {
     RECT     inner_rect;
     COLOR    color, bkcolor;
     int      font;
+    /*
+    gdc_t  * gdc; //not used right now
+    */
+    void  (* user_draw_method)(struct gui_widget_s * c);
     void   * private_data;
 };
 
@@ -62,6 +66,7 @@ enum __GUI_WIDGET_TYPE {
 #define  GUI_WIDGET_FLAG_HIDE         0x0001   /* 隐藏 */
 #define  GUI_WIDGET_FLAG_REFRESH      0x0002   /* 刷新 */
 
+
 /* FIXME: 此标志实现的太过粗糙, 需要仔细考虑...
  * 在很多情况下, 此标志的意义都是错的, 因为这个标志只在hide中清除,
  * 所以当一个控件被断开时, 此标志还是存在的,
@@ -69,6 +74,8 @@ enum __GUI_WIDGET_TYPE {
  * 这些都是BUG, 需要重新实现这一部分.
 */
 #define  GUI_WIDGET_FLAG_VISIBLE      0x0100   /* 已显示的 */
+
+#define  GUI_WIDGET_FLAG_WINDOW       0x1000   /* 窗口的根控件 */
 
 /*-----------------------------------------------------------------------------------------
  * 
@@ -95,6 +102,7 @@ BOOL guical gui_set_widget_font(gui_widget * c, int font);
 BOOL guical gui_set_widget_style(gui_widget * c, INT16U style);
 BOOL guical gui_set_widget_associated(gui_widget * c, void * associated, INT32U flag);
 BOOL guical gui_set_widget_type(gui_widget * c, int type);
+BOOL guical gui_set_widget_draw_method(gui_widget * c, void (*draw_fn)(gui_widget *));
 BOOL guical gui_widget_link(gui_widget * father, gui_widget * child);
 BOOL guical gui_widget_unlink(gui_widget * father, gui_widget * child);
 BOOL guical gui_free_widget_tree(gui_widget * tree);

@@ -21,6 +21,9 @@ static int          __WIDGET_POOL_ALLOCATED_NUM = 0;
 
 static gui_widget * __widget_pool_free = NULL;
 
+gui_widget * gui_global_root_widget = NULL; /* 控件的总根 */
+
+
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_widget_pool_init()
  *
@@ -71,7 +74,7 @@ void guical __exit gui_widget_pool_free(void)
     
     if(__WIDGET_POOL_ALLOCATED_NUM <= 0)
         return;
-    if(__widget_pool_free)
+    if(gui_global_root_widget)
         gui_free_widget_tree(gui_global_root_widget);
 
     for(i=0; i<GUI_WIDGET_POOL_NMBR; i++){

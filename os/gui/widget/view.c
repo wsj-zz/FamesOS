@@ -672,7 +672,9 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
             lock_kernel();
             gui_init_rect(&t->__edit.real_rect, x, y, w, h);
             gui_refresh_widget(&t->__edit);
+            gdc_set_myself_window_from_widget(view);
             gui_draw_edit(&t->__edit); /* 这句的作用是重新计算光标的位置的(并不是真的需要显示它) */
+            gdc_set_myself_window(NULL);
             t->edit_flag = 2;
             unlock_kernel();
             key = gui_edit_input(&t->__edit, buf, f->bytes, 0);
@@ -690,6 +692,8 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
                 case END:
                 default:
                     (void)get_item(index, f->id, buf, f->bytes, 0);
+                    lock_kernel();
+                    gdc_set_myself_window_from_widget(view);
                     if(view->style & VIEW_STYLE_NONE_SELECT){
                         gdi_draw_box(x, y, x+w, y+h, t->data_bkcolor);
                         draw_font_ex(x+1, y+1, w, h, buf, t->data_color, t->data_bkcolor, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
@@ -697,6 +701,8 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
                         gdi_draw_box(x, y, x+w, y+h, COLOR_BLUE);
                         draw_font_ex(x+1, y+1, w, h, buf, COLOR_RED, COLOR_BLUE, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
                     }
+                    gdc_set_myself_window(NULL);
+                    unlock_kernel();
                     break;
             }
             switch(key){
@@ -743,8 +749,8 @@ out_directly:
  *
  * 描述:    由订单的选中状态变化而引起的背景重绘
 **---------------------------------------------------------------------------------------*/
-void ____draw_blank_for_records(int x, int y, int x2, int y2, gui_view_private * t,
-                                COLOR bkcolor, COLOR marker_bkcolor, INT16U style)
+static void ____draw_blank_for_records(int x, int y, int x2, int y2, gui_view_private * t,
+                                       COLOR bkcolor, COLOR marker_bkcolor, INT16U style)
 {
     int j, to_left, zoom_out;
 

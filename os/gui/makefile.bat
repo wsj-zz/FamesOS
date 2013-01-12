@@ -6,6 +6,10 @@ cd   gdi
 call makefile
 cd   ..
 
+cd   gdc
+call makefile
+cd   ..
+
 cd   widget
 call makefile
 cd   ..

@@ -17,6 +17,12 @@ del *.lib
 del t.txt
 cd ..
 
+cd  gdc
+del *.obj
+del *.lib
+del t.txt
+cd ..
+
 cd  widget
 del *.obj
 del *.lib

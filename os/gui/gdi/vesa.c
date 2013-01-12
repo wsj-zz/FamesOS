@@ -1,10 +1,10 @@
 /*************************************************************************************
-** 文件: vesa.c
-** 说明: 图形显示接口(驱动, VESA)
-** 注意: 此文件必需以大模式编译(如: TCC -1 -B -ml ###.C)
-** 作者: Jun
-** 时间: 2010-03-27
-** 版本: V0.1 (2010-03-27, 最初的版本)
+ * 文件: vesa.c
+ * 说明: 图形显示接口(驱动, VESA)
+ * 注意: 此文件必需以大模式编译(如: TCC -1 -B -ml ###.C)
+ * 作者: Jun
+ * 时间: 2010-03-27
+ * 版本: V0.1 (2010-03-27, 最初的版本)
 *************************************************************************************/
 #define  FAMES_X_VESA_C
 #include "includes.h"
@@ -57,6 +57,20 @@ INT16S  X_CLOSE_GRAPH()
     asm pop ax
     SCREEN.opened=FALSE;
     DispatchUnlock();
+    return ok;
+}
+
+/*------------------------------------------------------------------------------------
+ * 函数:    X_GET_SCREEN_SIZE()
+ * 说明:    返回屏幕大小(分辨率)
+**----------------------------------------------------------------------------------*/
+INT16S  X_GET_SCREEN_SIZE(INT16S * width, INT16S * height)
+{
+    if (width)
+        *width = SCREEN.width;
+    if (height)
+        *height = SCREEN.height;
+
     return ok;
 }
 
@@ -208,7 +222,16 @@ COLOR   X_GET_PIXEL(INT16S x, INT16S y)
 **----------------------------------------------------------------------------------*/
 INT16S  X_CLEAR_SCREEN(COLOR color)
 {
-    X_DRAW_BOX(0, 0, SCREEN.width-1, SCREEN.height-1, color);
+    int x, x2, y, y2;
+
+    x = y = 0;
+    x2 = SCREEN.width-1;
+    y2 = SCREEN.height-1;
+
+    for(;y<=y2; y++){
+        X_DRAW_H_LINE(x, y, x2, color);
+    }
+
     return ok;
 }
 
@@ -422,7 +445,6 @@ INT16S  X_DRAW_H_IMAGE(INT16S x, INT16S y, INT16S x2, COLOR colors[])
     return ok;
 }
 
-#if     FAMES_VESA_V_FUNC_EN == 1
 /*------------------------------------------------------------------------------------
  * 函数:    X_DRAW_V_LINE()
  * 说明:    按颜色映象(IMAGE)垂直画线
@@ -513,7 +535,6 @@ INT16S  X_DRAW_V_IMAGE(INT16S x, INT16S y, INT16S y2, COLOR colors[])
     DispatchUnlock();
     return ok;
 }
-#endif
 
 /*------------------------------------------------------------------------------------
  * 函数:    X_DRAW_H_BITMAP()
@@ -590,17 +611,16 @@ INT16S  X_DRAW_H_BITMAP(INT16S x, INT16S y, INT16S dots, INT08U bitmap, COLOR  c
     return ok;
 }
 
-#if     FAMES_VESA_V_FUNC_EN == 1
 /*------------------------------------------------------------------------------------
-* 函数: X_DRAW_V_BITMAP()
-* 说明: 根据bitmap中的位画点(纵向), 如果某位为1,则在对应位置画点,否则不画
-*       一次最多画8个点
-* 输入: x       起始横坐标(0~SCREEN.width-1)
-*       y       纵坐标(0~SCREEN.height-1)
-*       bitmap  一个字节的位模式
-*       color   颜色
-* 注意: 本函数专门针对1024x768x256进行了优化
-* 用途: 本函数可大大加快字体的显示, 可用于画虚线
+ * 函数: X_DRAW_V_BITMAP()
+ * 说明: 根据bitmap中的位画点(纵向), 如果某位为1,则在对应位置画点,否则不画
+ *       一次最多画8个点
+ * 输入: x       起始横坐标(0~SCREEN.width-1)
+ *       y       纵坐标(0~SCREEN.height-1)
+ *       bitmap  一个字节的位模式
+ *       color   颜色
+ * 注意: 本函数专门针对1024x768x256进行了优化
+ * 用途: 本函数可大大加快字体的显示, 可用于画虚线
 **----------------------------------------------------------------------------------*/
 INT16S  X_DRAW_V_BITMAP(INT16S x, INT16S y, INT08U bitmap, COLOR  color)
 {
@@ -679,7 +699,6 @@ INT16S  X_DRAW_V_BITMAP(INT16S x, INT16S y, INT08U bitmap, COLOR  color)
     DispatchUnlock();
     return ok;
 }
-#endif
 
 /*------------------------------------------------------------------------------------
  * 函数:    X_DRAW_H_BITMAP_BG()
@@ -758,7 +777,6 @@ INT16S  X_DRAW_H_BITMAP_BG(INT16S x, INT16S y, INT16S dots, INT08U bitmap, COLOR
     return ok;
 }
 
-#if     FAMES_VESA_V_FUNC_EN == 1
 /*------------------------------------------------------------------------------------
  * 函数:    X_DRAW_V_BITMAP_BG()
  * 说明:    根据bitmap中的位画点(纵向), 如果某位为1,则在对应位置以color画点,
@@ -847,7 +865,6 @@ INT16S  X_DRAW_V_BITMAP_BG(INT16S x, INT16S y, INT08U bitmap, COLOR  color, COLO
     DispatchUnlock();
     return ok;
 }
-#endif
 
 /*------------------------------------------------------------------------------------
  * 函数:    X_DRAW_H_BITMAP_BGMAP()
@@ -936,9 +953,8 @@ INT16S  X_DRAW_H_BITMAP_BGMAP(INT16S x, INT16S y, INT16S dots, INT08U bitmap, CO
     return ok;
 }
 
-#if     FAMES_VESA_V_FUNC_EN == 1
 /*------------------------------------------------------------------------------------
- * 函数:    X_DRAW_V_BITMAP_BG()
+ * 函数:    X_DRAW_V_BITMAP_BGMAP()
  * 说明:    根据bitmap中的位画点(纵向), 如果某位为1,则在对应位置以color画点,
  *          否则以bgcolors中的颜色画点, 一次最多画8个点.
  * 输入:    x        起始横坐标(0~SCREEN.width-1)
@@ -1034,96 +1050,7 @@ INT16S  X_DRAW_V_BITMAP_BGMAP(INT16S x, INT16S y, INT08U bitmap, COLOR  color, C
     DispatchUnlock();
     return ok;
 }
-#endif
 
-/*------------------------------------------------------------------------------------
- * 函数:    X_DRAW_RECT()
- * 说明:    画矩形
- * 输入:    x       起始横坐标(0~SCREEN.width-1)
- *          y       起始纵坐标(0~SCREEN.height-1)
- *          x2      结尾横坐标(0~SCREEN.width-1)
- *          y2      结尾纵坐标(0~SCREEN.height-1)
- *          color   线的颜色
- * 输出:    ok/fail
-**----------------------------------------------------------------------------------*/
-INT16S  X_DRAW_RECT(INT16S x, INT16S y, INT16S x2, INT16S y2, COLOR  color)
-{
-    if(x>x2){
-        x += x2;
-        x2 = x-x2;
-        x -= x2;
-    }
-    if(y>y2){
-        y += y2;
-        y2 = y-y2;
-        y -= y2;
-    }
-    if(SCREEN.opened!=TRUE)
-        return fail;
-    if(x >=SCREEN.width )return fail;
-    if(x2< 0            )return fail;
-    if(y >=SCREEN.height)return fail;
-    if(y2< 0            )return fail;
-    if(x < 0            ){
-        x = 0;
-    } else {
-        X_DRAW_V_LINE(x , y , y2, color);        
-    }
-    if(x2>=SCREEN.width ){
-        x2= SCREEN.width-1;
-    } else {
-        X_DRAW_V_LINE(x2, y , y2, color);
-    }
-    if(y < 0            ){
-        y = 0;
-    } else {
-        X_DRAW_H_LINE(x , y , x2, color);
-    }
-    if(y2>=SCREEN.height){
-        y2= SCREEN.height-1;
-    } else {    
-        X_DRAW_H_LINE(x , y2, x2, color);
-    }
-    return ok;
-}
-
-/*------------------------------------------------------------------------------------
- * 函数:    X_DRAW_BOX()
- * 说明:    画矩形条
- * 输入:    x       起始横坐标(0~SCREEN.width-1)
- *          y       起始纵坐标(0~SCREEN.height-1)
- *          x2      结尾横坐标(0~SCREEN.width-1)
- *          y2      结尾纵坐标(0~SCREEN.height-1)
- *          color   线的颜色
-**----------------------------------------------------------------------------------*/
-INT16S  X_DRAW_BOX( INT16S x, INT16S y, INT16S x2, INT16S y2, COLOR  color)
-{
-    if(x>x2){
-        x += x2;
-        x2 = x-x2;
-        x -= x2;
-    }
-    if(y>y2){
-        y += y2;
-        y2 = y-y2;
-        y -= y2;
-    }
-    if(SCREEN.opened!=TRUE)
-        return fail;
-    if(x >=SCREEN.width )return fail;
-    if(x2< 0            )return fail;
-    if(y >=SCREEN.height)return fail;
-    if(y2< 0            )return fail;
-    if(x < 0            )x = 0;
-    if(x2>=SCREEN.width )x2= SCREEN.width-1;
-    if(y < 0            )y = 0;
-    if(y2>=SCREEN.height)y2= SCREEN.height-1;
-
-    for(;y<=y2; y++){
-        X_DRAW_H_LINE(x, y, x2, color);
-    }
-    return ok;
-}
 #endif                                        /* #if FAMES_GDI_EN==1           */
 
 /*

@@ -26,6 +26,7 @@ void guical __init InitGUI(void)
     if(!retval)
         goto out;
 
+    InitWindowManager();
     retval = gui_service_initialize();
     if(!retval)
         goto out2;
@@ -34,14 +35,16 @@ void guical __init InitGUI(void)
     if(!retval)
         goto out1;
 
-    gui_root_widget_initialize();
     gui_initialize_usr_widget();
+
     if(!init_xms_service()){
         printf("InitGUI: init_xms_service failed\n");
         getch();
         ExitApplication();
     }
     load_sys_font();
+
+    gui_desktop_init(); /* Setup the Desktop Window */
     
 out:
     return;
@@ -72,6 +75,8 @@ void __exit OnExitGUI(void)
     unlock_kernel();
 
     gui_widget_pool_free();
+
+    ExitWindowManager();
 
     gdi_stop_graph();
 }
