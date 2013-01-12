@@ -66,7 +66,7 @@ INPUT_DIALOG_ITEM("年龄: ", __id_old2,  8, 150, 120, 120, 32, 0, 0, "how old are
 INPUT_DIALOG_ITEM("姓名: ", __id_name3, 8, 280,  40, 160, 32, 0, 0, "what's your name")
 INPUT_DIALOG_ITEM("性别: ", __id_sex3,  8, 280,  80, 160, 32, 0, 0, "boy or girl? M/F")
 INPUT_DIALOG_ITEM("年龄: ", __id_old3,  8, 280, 120, 160, 32, 0, 0, "how old are you?")
-INPUT_DIALOG_SET(abcde, "输入对话框演示", NULL, 100, 100, 500, 250, 0, 0, 0, FORM_STYLE_TITLE|FORM_STYLE_XP_BORDER);
+INPUT_DIALOG_SET(abcde, "输入对话框演示", NULL, 64, 283, 500, 250, 0, 0, 0, FORM_STYLE_TITLE|FORM_STYLE_XP_BORDER);
 DECLARE_INPUT_DIALOG_ENDED(abcde)
 
 gui_widget * form;
@@ -80,6 +80,10 @@ gui_widget * button;
 gui_widget * progress1;
 
 gui_widget * dialog;
+
+gui_window_t * window1 = NULL;
+gui_window_t * window2 = NULL;
+gui_window_t * window3 = NULL;
 
 BMPINFO icon;
     
@@ -405,8 +409,11 @@ void demo_init_gui(void)
     InitBMPINFO(&icon);
     LoadBmp(&icon, "icon.bmp");
     load_fonts();
+
+    gui_desktop_enable();
+    gui_desktop_set_color(69);
     
-    form = gui_create_widget(GUI_WIDGET_FORM, 160, 150, 622, 420, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
+    form = gui_create_widget(GUI_WIDGET_FORM, 160, 120, 632, 460, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
     if(!form)
         goto err;
     gui_form_init_private(form, 64);
@@ -419,23 +426,23 @@ void demo_init_gui(void)
     gui_edit_init_private(edit, 128);
     gui_edit_set_text(edit, "这是一个文本框");
 
-    button = gui_create_widget(GUI_WIDGET_BUTTON, 200, 132, 220, 80, COLOR_YELLOW, 64, font16, BUTTON_STYLE_CLIENT_BDR);
+    button = gui_create_widget(GUI_WIDGET_BUTTON, 235+156, 142+100, 236, 32, COLOR_YELLOW, 64, font16, 0); /*BUTTON_STYLE_CLIENT_BDR*/
     if(!edit)
         goto err;
     gui_button_init_private(button, 128);
     gui_button_set_caption(button, "将那个Label盖住");
-
-    label = gui_create_widget(GUI_WIDGET_LABEL, 80, 100, 460, 64, color, bkcolor, font48, LABEL_STYLE_SUBSIDE);
-    if(!edit)
-        goto err;
-    gui_label_init_private(label, 128);
-    gui_label_set_text(label, "Startting...");
 
     test = gui_create_widget(GUI_WIDGET_EDIT, 80, 330, 460, 32, 0, 0, 0, 0);
     if(!test)
         goto err;
     gui_edit_init_private(test, 128);
     gui_edit_set_text(test, "");
+
+    label = gui_create_widget(GUI_WIDGET_LABEL, 80, 380, 460, 64, COLOR_WHITE, 66, font48, LABEL_STYLE_SUBSIDE);
+    if(!edit)
+        goto err;
+    gui_label_init_private(label, 128);
+    gui_label_set_text(label, "Startting...");
 
     view = gui_create_widget(GUI_WIDGET_VIEW, 80, 48, 460, 200, 0, 0, 0, VIEW_STYLE_NONE_FIRST|VIEW_STYLE_FIELDS_TITLE|VIEW_STYLE_STATISTIC_BAR);
     if(!view)
@@ -452,23 +459,31 @@ void demo_init_gui(void)
         goto err;
 
     gui_widget_link(NULL, form);
+    gui_widget_link(form, view);
     gui_widget_link(form, edit);
     gui_widget_link(form, test);
-    gui_widget_link(form, view);
     gui_widget_link(form, label);
-    gui_widget_link(form, button);
 
     gui_widget_link(NULL, dialog);
 
+    gui_widget_link(NULL, button);
+
     gui_widget_link(form, progress1);
 
-    gui_set_root_widget(form);
+    window1 = gui_create_window(form);
+    gui_show_window(window1);
+
+    window2 = gui_create_window(dialog);
+
+    window3 = gui_create_window(button);
+    gui_show_window(window3);
 
     StartGUI();
     
 err:
     return;
 }
+
 
 void __task refresh_task(void * data)
 {
@@ -479,15 +494,16 @@ void __task refresh_task(void * data)
     data = data;
 
     for (;;) {
-        sprintf(buf, "[%d%%] %ld", CPU_USED, count);
+        sprintf(buf, "[%d%%] %ld $ %ld", CPU_USED, count, 100000-count*3);
+        count++;
         gui_label_set_text(label, buf);
-        if (flag)
-		gui_set_widget_color(button, 64);
-	else
-		gui_set_widget_color(button, COLOR_YELLOW);
-	count *= 3247;
-	count += 23732;
-	TaskSleep(200);
+
+    	gui_form_set_caption(form, buf);
+
+        sprintf(buf, "[%d%%] %ld 将那个Label盖住", CPU_USED, count*3);
+        gui_button_set_caption(button, buf);
+	
+    	TaskSleep(20);
     }
 }
 
@@ -578,9 +594,17 @@ void __task start(void * data)
                 break;
             case 'd':
             case 'D':
-                gui_set_root_widget(dialog);
+                gui_show_window(window2);
                 input_dialog_method(&abcde, dialog_prepare, dialog_finish, NULL, 1);
-                gui_set_root_widget(form);
+                gui_hide_window(window2);
+                break;
+            case 'h':
+            case 'H':
+                gui_hide_window(window3);
+                break;
+            case 'f':
+            case 'F':
+                gui_show_window(window3);
                 break;
             case 'e':
             case 'E':
