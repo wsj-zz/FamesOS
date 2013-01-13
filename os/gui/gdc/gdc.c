@@ -434,17 +434,7 @@ void __sysonly gdc_set_myself_window_from_widget(gui_widget * widget)
         return;
 
     lock_kernel();
-    while (widget) {
-        if (widget->flag & GUI_WIDGET_FLAG_WINDOW)
-            break;
-        widget = widget->father; /* 顺序向上找 */
-    }
-    if (widget) {
-        gui_for_each_window(win) {
-            if (win->root_widget == widget)
-                break;
-        }
-    }
+    win = gui_find_window_from_widget(widget);
     if (win) { /* 找到了控件widget所属的窗口 */
         myself_window = win;
     }

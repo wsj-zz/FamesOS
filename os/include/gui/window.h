@@ -42,6 +42,7 @@ typedef struct gui_window_struct gui_window_t;
 **----------------------------------------------------------------------------------------*/
 gui_window_t * guical gui_create_window(gui_widget * widget);
 void guical gui_destroy_window(gui_window_t * w);
+gui_window_t * guical gui_find_window_from_widget(gui_widget * widget);
 void guical gui_show_window(gui_window_t * w);
 void guical gui_hide_window(gui_window_t * w);
 void guical gui_refresh_window(gui_window_t * w);
@@ -56,6 +57,8 @@ void __sysonly InitWindowManager(void);
 void __sysonly ExitWindowManager(void);
 int  __sysonly gui_window_set_dirty(gui_window_t * w, RECT * rect);
 int  __sysonly gui_window_clear_dirty(gui_window_t * w);
+int  __sysonly gui_window_dirty_mask(gui_window_t * w);
+void __sysonly gui_window_dirty_unmask(gui_window_t * w, int has);
 void __sysonly gui_window_action(gui_window_t * window);
 
 void guical gui_window_move(gui_window_t * w, int x_move, int y_move);

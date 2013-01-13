@@ -809,6 +809,8 @@ void gui_draw_view(gui_widget * view)
     view_get_max_index_f    get_max_index;
     view_show_statistics_f  show_statistics;
     view_notifier_f         notifier_on_changed;
+    int has_dirty = NO;
+    gui_window_t * win = NULL;
 
     FamesAssert(view);
     if(!view)
@@ -821,7 +823,7 @@ void gui_draw_view(gui_widget * view)
     FamesAssert(t->fields);
     if(!t->fields)
         return;
-    
+
     inner_rect = &view->inner_rect;
     bkcolor = t->data_bkcolor;
     font = view->font;
@@ -836,6 +838,11 @@ void gui_draw_view(gui_widget * view)
     height_per_row = t->height_per_row;
     __height_per_row = height_per_row - 1; /* 一笔记录显示的高度 */
     
+    win = gui_find_window_from_widget(view);
+    if (win) {
+        has_dirty = gui_window_dirty_mask(win);
+    }
+
     if(view->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = view->real_rect.x;
         y  = view->real_rect.y;
@@ -1148,20 +1155,21 @@ void gui_draw_view(gui_widget * view)
                 /* 如果没有提供show_record或者是正在编辑这一行, 那么就用这样的方式显示 */
                 view_fields_t * f;
                 char buf[256];
-                if((t->edit_flag == 2) && (first_record_index+i == selected_index_curr) &&
-                    !(view->style & VIEW_STYLE_NONE_SELECT)){ /* 在有选择模式下, 如果正在编辑这一行, 那么这一行不会自动刷新 */
-                    gui_draw_edit(&t->__edit);
-                    t->__edit.flag &= ~GUI_WIDGET_FLAG_REFRESH;
-                } else {
-                    for(f=___f; f->caption; f++){
+                for(f=___f; f->caption; f++){
+                    if((t->edit_flag == 2) && (first_record_index+i == selected_index_curr) &&
+                       (___f[t->current_field].id == f->id)){ /* 正在编辑这个元素, 那么就不自动刷新 */
+                        gui_draw_edit(&t->__edit);
+                        t->__edit.flag &= ~GUI_WIDGET_FLAG_REFRESH;
+                    } else if(get_item){
+                        MEMSET(buf, 0, sizeof(buf));
+                        if(!get_item(first_record_index+i, f->id, buf, f->bytes, 0))
+                            buf[0] = 0; /* 如果没有数据, 那就清空buf */
                         if((t->edit_flag == 2) && (first_record_index+i == selected_index_curr) &&
-                           (___f[t->current_field].id == f->id)){ /* 正在编辑这个元素, 那么就不自动刷新 */
-                            gui_draw_edit(&t->__edit);
-                            t->__edit.flag &= ~GUI_WIDGET_FLAG_REFRESH;
-                        } else if(get_item){
-                            MEMSET(buf, 0, sizeof(buf));
-                            if(!get_item(first_record_index+i, f->id, buf, f->bytes, 0))
-                                buf[0] = 0; /* 如果没有数据, 那就清空buf */
+                            !(view->style & VIEW_STYLE_NONE_SELECT)){ /* 在有选择模式下, 如果正在编辑这一行, 那么颜色会有所不同 */
+                            draw_font_for_widget(x+f->offset_x, y, (f->width-to_left), height_per_row, buf, 
+                                                 records_oldbuf(i)+f->old_buf_ptr, /*lint !e679*/
+                                                 VIEW_EDITED_COLOR, VIEW_EDITED_BKCOLOR, font, f->draw_style);
+                        } else {
                             if((f == ___f) && (view->style & VIEW_STYLE_MARK_BAR)){
                                 /* 第一个字段可能需要特殊显示 */
                                 draw_font_for_widget(x+f->offset_x+3, y, (f->width-to_left)-6, height_per_row, buf, 
@@ -1192,6 +1200,10 @@ void gui_draw_view(gui_widget * view)
             }
         }
         t->data_displayed = 1; /* 数据已显示过 */
+    }
+
+    if (win) {
+        gui_window_dirty_unmask(win, has_dirty);
     }
 
     return;

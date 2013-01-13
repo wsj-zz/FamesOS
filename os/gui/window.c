@@ -150,7 +150,7 @@ gui_window_t * __sysonly gui_get_window_list(void)
 
 /*-----------------------------------------------------------------------------------------
  *
- * 窗口的创建与销毁
+ * 窗口的创建, 销毁, 查找
  *
 **---------------------------------------------------------------------------------------*/
 /**
@@ -186,6 +186,31 @@ void guical gui_destroy_window(gui_window_t * w)
         w->root_widget->flag &= ~GUI_WIDGET_FLAG_WINDOW;
     __window_list_del(w);
     __free_window(w);
+}
+
+gui_window_t * guical gui_find_window_from_widget(gui_widget * widget)
+{
+    gui_window_t * win = NULL;
+
+    FamesAssert(widget);
+    if (!widget)
+        return;
+
+    lock_kernel();
+    while (widget) {
+        if (widget->flag & GUI_WIDGET_FLAG_WINDOW)
+            break;
+        widget = widget->father; /* 顺序向上找 */
+    }
+    if (widget) {
+        gui_for_each_window(win) {
+            if (win->root_widget == widget)
+                break;
+        }
+    }
+    unlock_kernel();
+
+    return win;
 }
 
 /*-----------------------------------------------------------------------------------------
@@ -469,6 +494,42 @@ int __sysonly gui_window_clear_dirty(gui_window_t * w)
     unlock_kernel();
 
     return ok;
+}
+
+/*-----------------------------------------------------------------------------------------
+ *
+ * dirty rect: mask & unmask
+ *
+ * 这两函数的使用要非常小心, 因为会影响到dirty-rect的设定与计算
+ *
+**---------------------------------------------------------------------------------------*/
+int __sysonly gui_window_dirty_mask(gui_window_t * w)
+{
+    int has = NO;
+
+    FamesAssert(w);
+    FamesAssert(w->magic == WINDOW_MAGIC);
+    if (!w || w->magic != WINDOW_MAGIC)
+        return fail;
+
+    lock_kernel();
+    has = w->has_dirty_rect;
+    w->has_dirty_rect = NO;
+    unlock_kernel();
+
+    return has;
+}
+
+void __sysonly gui_window_dirty_unmask(gui_window_t * w, int has)
+{
+    FamesAssert(w);
+    FamesAssert(w->magic == WINDOW_MAGIC);
+    if (!w || w->magic != WINDOW_MAGIC)
+        return;
+
+    lock_kernel();
+    w->has_dirty_rect = has;
+    unlock_kernel();
 }
 
 /*-----------------------------------------------------------------------------------------
