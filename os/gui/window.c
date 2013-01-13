@@ -194,7 +194,7 @@ gui_window_t * guical gui_find_window_from_widget(gui_widget * widget)
 
     FamesAssert(widget);
     if (!widget)
-        return;
+        return NULL;
 
     lock_kernel();
     while (widget) {
@@ -220,6 +220,7 @@ gui_window_t * guical gui_find_window_from_widget(gui_widget * widget)
 **---------------------------------------------------------------------------------------*/
 void guical gui_show_window(gui_window_t * w)
 {
+/*lint --e{613}*/
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
     if (!w || w->magic != WINDOW_MAGIC || !w->root_widget)
@@ -245,6 +246,7 @@ out:
 
 void guical gui_hide_window(gui_window_t * w)
 {
+/*lint --e{613}*/
     gui_window_t * t;
 
     FamesAssert(w);
@@ -280,6 +282,7 @@ out:
 
 void guical gui_refresh_window(gui_window_t * w)
 {
+/*lint --e{613}*/
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
     if (!w || w->magic != WINDOW_MAGIC)
@@ -312,6 +315,8 @@ static void __do_window_relocation_resize(
                     int width, int height,
                     int cmd)
 {
+/*lint --e{613}*/
+
     gui_window_t * t;
 
     FamesAssert(w);
@@ -435,6 +440,8 @@ void guical gui_get_window_usage(int * total, int * used)
 **---------------------------------------------------------------------------------------*/
 int __sysonly gui_window_set_dirty(gui_window_t * w, RECT * rect)
 {
+/*lint --e{613}*/
+
     RECT * dirty_rect;
     int d_x1, d_y1, d_x2, d_y2;
     int r_x1, r_y1, r_x2, r_y2;
@@ -484,6 +491,7 @@ int __sysonly gui_window_set_dirty(gui_window_t * w, RECT * rect)
 
 int __sysonly gui_window_clear_dirty(gui_window_t * w)
 {
+/*lint --e{613}*/
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
     if (!w || w->magic != WINDOW_MAGIC)
@@ -505,6 +513,7 @@ int __sysonly gui_window_clear_dirty(gui_window_t * w)
 **---------------------------------------------------------------------------------------*/
 int __sysonly gui_window_dirty_mask(gui_window_t * w)
 {
+/*lint --e{613}*/
     int has = NO;
 
     FamesAssert(w);
@@ -522,6 +531,7 @@ int __sysonly gui_window_dirty_mask(gui_window_t * w)
 
 void __sysonly gui_window_dirty_unmask(gui_window_t * w, int has)
 {
+/*lint --e{613}*/
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
     if (!w || w->magic != WINDOW_MAGIC)
@@ -539,6 +549,7 @@ void __sysonly gui_window_dirty_unmask(gui_window_t * w, int has)
 **---------------------------------------------------------------------------------------*/
 RECT * guical gui_window_get_realrect(gui_window_t * w)
 {
+/*lint --e{613}*/
     gui_widget * root_widget;
 
     FamesAssert(w);
