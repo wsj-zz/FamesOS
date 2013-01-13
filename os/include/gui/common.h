@@ -32,6 +32,12 @@ struct{           /* µã   */
 }POINT;
 
 
+#define __gui_make_x2(x1, width)  (((x1) + (width)) - 1)
+#define __gui_make_y2(y1, height) (((y1) + (height)) - 1)
+#define __gui_make_width(x2, x1)  (((x2) - (x1)) + 1)
+#define __gui_make_height(y2, y1) (((y2) - (y1)) + 1)
+
+
 #endif /* #ifndef FAMES_GUI_COMMON_H */
 
 /*==============================================================================================

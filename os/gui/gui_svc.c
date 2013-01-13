@@ -88,8 +88,10 @@ void __daemon gui_service_daemon(void * data)
         CurrentTCB->TaskTimer = 80L; /* set for calc run time */
         out_atomic();
         lock_kernel();
-        gui_for_each_window(w)
+        gui_for_each_window(w) {
             gui_window_action(w);
+            gui_window_clear_dirty(w);  /* clear the dirty rect */
+        }
         unlock_kernel();
         in_atomic();
         sleep_ms = CurrentTCB->TaskTimer;

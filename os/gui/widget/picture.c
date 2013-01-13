@@ -107,8 +107,8 @@ void gui_draw_picture(gui_widget * pic)
     if(pic->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = pic->real_rect.x;
         y  = pic->real_rect.y;
-        x1 = pic->real_rect.width + x;
-        y1 = pic->real_rect.height + y;
+        x1 = __gui_make_x2(x, pic->real_rect.width);
+        y1 = __gui_make_y2(y, pic->real_rect.height);
         bkcolor = pic->bkcolor;
         if(bkcolor==0)
             bkcolor = WIDGET_BKCOLOR;

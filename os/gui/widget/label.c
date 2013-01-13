@@ -125,8 +125,8 @@ void gui_draw_label(gui_widget * label)
     if(label->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = label->real_rect.x;
         y  = label->real_rect.y;
-        x1 = label->real_rect.width + x;
-        y1 = label->real_rect.height + y;
+        x1 = __gui_make_x2(x, label->real_rect.width);
+        y1 = __gui_make_y2(y, label->real_rect.height);
         if(label->style & LABEL_STYLE_XP_BORDER){
             move = gui_widget_draw_xp_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);

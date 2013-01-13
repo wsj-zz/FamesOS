@@ -128,8 +128,8 @@ void gui_draw_button(gui_widget * button)
     if(button->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = button->real_rect.x;
         y  = button->real_rect.y;
-        x1 = button->real_rect.width + x;
-        y1 = button->real_rect.height + y;
+        x1 = __gui_make_x2(x, button->real_rect.width);
+        y1 = __gui_make_y2(y, button->real_rect.height);
         if(button->style & BUTTON_STYLE_CLIENT_BDR){
             move = gui_widget_draw_client_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);

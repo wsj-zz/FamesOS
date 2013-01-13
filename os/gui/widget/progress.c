@@ -117,8 +117,8 @@ void gui_draw_progress(gui_widget * progress)
     inner_rect = &progress->inner_rect;
     x  = progress->real_rect.x;
     y  = progress->real_rect.y;
-    x1 = progress->real_rect.width + x;
-    y1 = progress->real_rect.height + y;
+    x1 = __gui_make_x2(x, progress->real_rect.width);
+    y1 = __gui_make_y2(y, progress->real_rect.height);
     color   = progress->color;
     if(color==0)
         color = WIDGET_PROGRESS_COLOR;

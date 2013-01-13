@@ -124,8 +124,8 @@ void gui_draw_dashedline(gui_widget * dashedline)
             bkcolor = WIDGET_BKCOLOR;
         x  = dashedline->real_rect.x;
         y  = dashedline->real_rect.y;
-        x1 = dashedline->real_rect.width + x;
-        y1 = dashedline->real_rect.height + y;
+        x1 = __gui_make_x2(x, dashedline->real_rect.width);
+        y1 = __gui_make_y2(y, dashedline->real_rect.height);
         if(dashedline->style & DASHED_STYLE_VERTICAL){
             real_x = y;
             if(dashedline->style & DASHED_STYLE_CENTER){

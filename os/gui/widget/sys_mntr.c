@@ -126,8 +126,8 @@ void gui_draw_sys_mntr(gui_widget * sys_mntr)
             sys_mntr->real_rect.height = 640;
         x  = sys_mntr->real_rect.x;
         y  = sys_mntr->real_rect.y;
-        x1 = sys_mntr->real_rect.width + x;
-        y1 = sys_mntr->real_rect.height + y;
+        x1 = __gui_make_x2(x, sys_mntr->real_rect.width);
+        y1 = __gui_make_y2(y, sys_mntr->real_rect.height);
         if(sys_mntr->style & SYS_MNTR_STYLE_TRANSPARENT){
             goto goto1;
         }        

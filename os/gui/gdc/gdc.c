@@ -50,9 +50,9 @@ GDC_value __sysonly gdc_is_xline_visible(int x, int x2, int y, int * o_x1, int *
         return GDC_none;
 
     min_x = myself_root->real_rect.x;
-    max_x = myself_root->real_rect.width + min_x - 1;
+    max_x = __gui_make_x2(min_x, myself_root->real_rect.width);
     min_y = myself_root->real_rect.y;
-    max_y = myself_root->real_rect.height + min_y - 1;
+    max_y = __gui_make_y2(min_y, myself_root->real_rect.height);
 
     if (y < min_y || y > max_y)
         return GDC_none;
@@ -61,6 +61,21 @@ GDC_value __sysonly gdc_is_xline_visible(int x, int x2, int y, int * o_x1, int *
         x = min_x;
     if (x2 > max_x)
         x2 = max_x;
+
+    if (myself->has_dirty_rect == YES) { /* dirty rect is marked */
+        min_x = myself->dirty_rect.x;
+        max_x = __gui_make_x2(min_x, myself->dirty_rect.width);
+        min_y = myself->dirty_rect.y;
+        max_y = __gui_make_y2(min_y, myself->dirty_rect.height);
+
+        if (y < min_y || y > max_y)
+            return GDC_none;
+
+        if (x < min_x)
+            x = min_x;
+        if (x2 > max_x)
+            x2 = max_x;
+    }
 
     if (x > x2)
         return GDC_none;
@@ -188,9 +203,9 @@ GDC_value __sysonly gdc_is_yline_visible(int y, int y2, int x, int * o_y1, int *
         return GDC_none;
 
     min_x = myself_root->real_rect.x;
-    max_x = myself_root->real_rect.width + min_x - 1;
+    max_x = __gui_make_x2(min_x, myself_root->real_rect.width);
     min_y = myself_root->real_rect.y;
-    max_y = myself_root->real_rect.height + min_y - 1;
+    max_y = __gui_make_y2(min_y, myself_root->real_rect.height);
 
     if (x < min_x || x > max_x)
         return GDC_none;
@@ -199,6 +214,21 @@ GDC_value __sysonly gdc_is_yline_visible(int y, int y2, int x, int * o_y1, int *
         y = min_y;
     if (y2 > max_y)
         y2 = max_y;
+
+    if (myself->has_dirty_rect == YES) { /* dirty rect is marked */
+        min_x = myself->dirty_rect.x;
+        max_x = __gui_make_x2(min_x, myself->dirty_rect.width);
+        min_y = myself->dirty_rect.y;
+        max_y = __gui_make_y2(min_y, myself->dirty_rect.height);
+
+        if (x < min_x || x > max_x)
+            return GDC_none;
+
+        if (y < min_y)
+            y = min_y;
+        if (y2 > max_y)
+            y2 = max_y;
+    }
 
     if (y > y2)
         return GDC_none;
@@ -319,14 +349,26 @@ GDC_value __sysonly  gdc_is_point_visible(int x, int y)
         return GDC_none;
 
     min_x = myself_root->real_rect.x;
-    max_x = myself_root->real_rect.width + min_x - 1;
+    max_x = __gui_make_x2(min_x, myself_root->real_rect.width);
     min_y = myself_root->real_rect.y;
-    max_y = myself_root->real_rect.height + min_y - 1;
+    max_y = __gui_make_y2(min_y, myself_root->real_rect.height);
 
     if (x < min_x || x > max_x)
         return GDC_none;
     if (y < min_y || y > max_y)
         return GDC_none;
+
+    if (myself->has_dirty_rect == YES) { /* dirty rect is marked */
+        min_x = myself->dirty_rect.x;
+        max_x = __gui_make_x2(min_x, myself->dirty_rect.width);
+        min_y = myself->dirty_rect.y;
+        max_y = __gui_make_y2(min_y, myself->dirty_rect.height);
+
+        if (x < min_x || x > max_x)
+            return GDC_none;
+        if (y < min_y || y > max_y)
+            return GDC_none;
+    }
 
     w = myself;
     while ((w = w->next) != NULL) {
@@ -347,9 +389,9 @@ static int gdc_is_point_visible_in_window(gui_window_t * w, int x, int y)
         return NO;
 
     min_x = root->real_rect.x;
-    max_x = root->real_rect.width + min_x - 1;
+    max_x = __gui_make_x2(min_x, root->real_rect.width);
     min_y = root->real_rect.y;
-    max_y = root->real_rect.height + min_y - 1;
+    max_y = __gui_make_y2(min_y, root->real_rect.height);
 
     if (x >= min_x && x <= max_x &&
         y >= min_y && y <= max_y)

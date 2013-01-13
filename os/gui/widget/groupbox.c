@@ -122,8 +122,8 @@ void gui_draw_groupbox(gui_widget * groupbox)
     if(groupbox->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = groupbox->real_rect.x;
         y  = groupbox->real_rect.y;
-        x1 = groupbox->real_rect.width + x;
-        y1 = groupbox->real_rect.height + y;
+        x1 = __gui_make_x2(x, groupbox->real_rect.width);
+        y1 = __gui_make_y2(y, groupbox->real_rect.height);
 
         if(groupbox->style & GROUPBOX_STYLE_CAPTION)
             y += 8;

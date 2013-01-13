@@ -156,8 +156,8 @@ void gui_draw_form(gui_widget * form)
     if(form->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = form->real_rect.x;
         y  = form->real_rect.y;
-        x1 = form->real_rect.width + x;
-        y1 = form->real_rect.height + y;
+        x1 = __gui_make_x2(x, form->real_rect.width);
+        y1 = __gui_make_y2(y, form->real_rect.height);
         if(form->style & FORM_STYLE_XP_BORDER){
             move = gui_widget_draw_xp_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);

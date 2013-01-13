@@ -13,12 +13,15 @@
  *      VIEW私有结构
  * 
 **---------------------------------------------------------------------------------------*/
-#define VIEW_MAX_FIELDS     32      /* 可同时支持的最大字段数              */
-#define VIEW_MAX_RECORDS    64      /* 可同时显示的最大记录数(1页)         */
-#define VIEW_MAX_OLD_SIZE   256     /* size_per_record_for_old的最大值     */
+#define VIEW_MAX_FIELDS     32          /* 可同时支持的最大字段数              */
+#define VIEW_MAX_RECORDS    64          /* 可同时显示的最大记录数(1页)         */
+#define VIEW_MAX_OLD_SIZE   256         /* size_per_record_for_old的最大值     */
+
+#define VIEW_EDITED_COLOR   COLOR_RED   /* 本编辑行中已修改过的内容, 字体颜色  */
+#define VIEW_EDITED_BKCOLOR COLOR_BLUE  /* 应与__SELECT_ORDER_BK相同, 背景色   */
 
 struct gui_view_private_s {
-    int   me_size;
+    int    me_size;
     view_fields_t  * fields;
     view_show_record_f       show_record;
     view_show_statistics_f   show_statistics;
@@ -670,7 +673,7 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
             w -= 2;
             h -= 6;
             lock_kernel();
-            gui_init_rect(&t->__edit.real_rect, x, y, w, h);
+            gui_init_rect(&t->__edit.real_rect, x, y, w+1, h+1);
             gui_refresh_widget(&t->__edit);
             gdc_set_myself_window_from_widget(view);
             gui_draw_edit(&t->__edit); /* 这句的作用是重新计算光标的位置的(并不是真的需要显示它) */
@@ -698,8 +701,8 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
                         gdi_draw_box(x, y, x+w, y+h, t->data_bkcolor);
                         draw_font_ex(x+1, y+1, w, h, buf, t->data_color, t->data_bkcolor, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
                     } else {
-                        gdi_draw_box(x, y, x+w, y+h, COLOR_BLUE);
-                        draw_font_ex(x+1, y+1, w, h, buf, COLOR_RED, COLOR_BLUE, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
+                        gdi_draw_box(x, y, x+w, y+h, VIEW_EDITED_BKCOLOR);
+                        draw_font_ex(x+1, y+1, w, h, buf, VIEW_EDITED_COLOR, VIEW_EDITED_BKCOLOR, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
                     }
                     gdc_set_myself_window(NULL);
                     unlock_kernel();
@@ -836,8 +839,8 @@ void gui_draw_view(gui_widget * view)
     if(view->flag & GUI_WIDGET_FLAG_REFRESH){
         x  = view->real_rect.x;
         y  = view->real_rect.y;
-        x1 = view->real_rect.width + x;
-        y1 = view->real_rect.height + y;
+        x1 = __gui_make_x2(x, view->real_rect.width);
+        y1 = __gui_make_y2(y, view->real_rect.height);
         dashed_color = t->dashed_color;
         dashed_style = t->dashed_style;
         if(dashed_color == 0)
