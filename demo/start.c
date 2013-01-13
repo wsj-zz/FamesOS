@@ -411,9 +411,9 @@ void demo_init_gui(void)
     load_fonts();
 
     gui_desktop_enable();
-    gui_desktop_set_color(69);
+    gui_desktop_set_color(CLRSCR_COLOR2);
     
-    form = gui_create_widget(GUI_WIDGET_FORM, 160, 120, 632, 460, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
+    form = gui_create_widget(GUI_WIDGET_FORM, 180, 120, 632, 500, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
     if(!form)
         goto err;
     gui_form_init_private(form, 64);
@@ -474,6 +474,7 @@ void demo_init_gui(void)
     gui_show_window(window1);
 
     window2 = gui_create_window(dialog);
+    gui_show_window(window2);
 
     window3 = gui_create_window(button);
     gui_show_window(window3);
@@ -494,14 +495,39 @@ void __task refresh_task(void * data)
     data = data;
 
     for (;;) {
-        sprintf(buf, "[%d%%] %ld $ %ld", CPU_USED, count, 100000-count*3);
+        sprintf(buf, "[%d%%] %ld $ %ld", CPU_USED, count, 50000-count*3);
         count++;
+        if (count >= 5000)
+            count = 1;
         gui_label_set_text(label, buf);
 
     	gui_form_set_caption(form, buf);
 
         sprintf(buf, "[%d%%] %ld 将那个Label盖住", CPU_USED, count*3);
         gui_button_set_caption(button, buf);
+
+        if (0) {
+            static int f = 0, i = 0;
+            static KEYCODE test_keys[] = {'d', ENTER, ESC, 'f', ENTER, 'h', ENTER, ESC};
+
+            if (--f <= 0) {
+                f = 20;
+                putkey(test_keys[i++]);
+                if (i >= sizeof(test_keys))
+                    i = 0;
+            }
+        }
+
+        if (1) {
+            static int f = 0, x = 0, y = 0;
+
+            if (--f <= 0) {
+                f = 200;
+                x = random(900);
+                y = random(700);
+                gui_window_moveto(window3, x, y);
+            }
+        }        
 	
     	TaskSleep(20);
     }
@@ -594,9 +620,13 @@ void __task start(void * data)
                 break;
             case 'd':
             case 'D':
-                gui_show_window(window2);
                 input_dialog_method(&abcde, dialog_prepare, dialog_finish, NULL, 1);
-                gui_hide_window(window2);
+                {
+                    static COLOR tmp = 67;
+                    gui_desktop_set_color(tmp);
+                    tmp += 77;
+                }
+                TaskSleep(10);
                 break;
             case 'h':
             case 'H':
@@ -605,6 +635,42 @@ void __task start(void * data)
             case 'f':
             case 'F':
                 gui_show_window(window3);
+                break;
+            case 'm':
+            case 'M':
+                while (1) {
+                    KEYCODE move;
+                    move = getkey();
+                    switch (move) {
+                        case ESC:
+                            goto out_while;
+                        case LEFT:
+                            gui_window_move(window2, -23, 0);
+                            break;
+                        case RIGHT:
+                            gui_window_move(window2, 13, 0);
+                            break;
+                        case UP:
+                            gui_window_move(window2, 0, -11);
+                            break;
+                        case DOWN:
+                            gui_window_move(window2, 0, 23);
+                            break;
+                        case CTRL_LEFT:
+                            gui_window_resize(window2, -23, 0);
+                            break;
+                        case CTRL_RIGHT:
+                            gui_window_resize(window2, 13, 0);
+                            break;
+                        case CTRL_UP:
+                            gui_window_resize(window2, 0, -11);
+                            break;
+                        case CTRL_DOWN:
+                            gui_window_resize(window2, 0, 23);
+                            break;
+                    }
+                }
+                out_while:
                 break;
             case 'e':
             case 'E':
