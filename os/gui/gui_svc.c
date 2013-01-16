@@ -16,7 +16,9 @@
  * GUI服务器句柄
  * 
 **---------------------------------------------------------------------------------------*/
-static HANDLE gui_service_handle=InvalidHandle;
+static HANDLE gui_service_handle = InvalidHandle;
+
+static int    gui_service_loops  = -1; /* in fact, this is (loops % 1000) */
 
 
 /*-----------------------------------------------------------------------------------------
@@ -86,11 +88,13 @@ void __daemon gui_service_daemon(void * data)
     for(;;){
         in_atomic();
         CurrentTCB->TaskTimer = 80L; /* set for calc run time */
+        gui_service_loops++;
+        if (gui_service_loops >= 1000)
+            gui_service_loops = 0;
         out_atomic();
         lock_kernel();
         gui_for_each_window(w) {
             gui_window_action(w);
-            gui_window_clear_dirty(w);  /* clear the dirty rect */
         }
         unlock_kernel();
         in_atomic();
@@ -124,6 +128,62 @@ BOOL gui_service_initialize(void)
     TaskSuspend(gui_service_handle);
     
     return ok;
+}
+
+/*-----------------------------------------------------------------------------------------
+ * 函数:    gui_service_get_loops()
+ *
+ * 说明:    返回GUI服务器循环次数
+**---------------------------------------------------------------------------------------*/
+static int gui_service_get_loops(void)
+{
+    int loops;
+    prepare_atomic()
+
+    in_atomic();
+    loops = gui_service_loops;
+    out_atomic();
+
+    return loops;
+}
+
+/*-----------------------------------------------------------------------------------------
+ * 函数:    gui_service_wait_refresh()
+ *
+ * 说明:    等待GUI服务器刷新一次
+**---------------------------------------------------------------------------------------*/
+void gui_service_wait_refresh(void)
+{
+    gui_service_wait_refresh_ex(1);
+}
+
+/*-----------------------------------------------------------------------------------------
+ * 函数:    gui_service_wait_refresh_ex()
+ *
+ * 说明:    等待GUI服务器刷新几次
+**---------------------------------------------------------------------------------------*/
+void gui_service_wait_refresh_ex(int times)
+{
+    int loops1, loops2, i;
+
+    FamesAssert(times > 0);
+    if (times <= 0)
+        return;
+
+    loops1 = gui_service_get_loops();
+    if (loops1 < 0)
+        return; /* gui-service尚未启动 */
+
+    for (i = 0; i < 8; i++) { /* 最多只等待96ms */
+        TimerForce(TimerGUI);
+        TaskSleep(12uL);
+        loops2 = gui_service_get_loops();
+        if (loops2 < loops1) {
+            loops2 += 1000;
+        }
+        if ((loops2 - loops1) > times) /* 这里用大于, 而不是大于等于, */
+            break;                     /* 是为了保证等待的次数的有效性 */
+    }
 }
 
 /*=========================================================================================

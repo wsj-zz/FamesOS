@@ -235,11 +235,10 @@ void guical gui_show_window(gui_window_t * w)
     w->flag |= WINDOW_FLAG_SHOW;
     gui_window_clear_dirty(w);
     gui_refresh_widget(w->root_widget);
-    TimerForce(TimerGUI);
 
 out:
     unlock_kernel();
-    TaskSleep(16uL);
+    gui_service_wait_refresh();
 
     return;
 }
@@ -254,10 +253,9 @@ void guical gui_hide_window(gui_window_t * w)
     if (!w || w->magic != WINDOW_MAGIC)
         return;
 
-    TimerForce(TimerGUI);
-    TaskSleep(35uL);    /* 让有需要的控件刷新一次, 35ms应该够了吧 */
-
+    gui_service_wait_refresh();
     lock_kernel();
+
     if (!(w->flag & WINDOW_FLAG_SHOW))
         goto out;
 
@@ -269,13 +267,12 @@ void guical gui_hide_window(gui_window_t * w)
             continue;   /* 不理会隐藏窗口 */
         gui_window_set_dirty(t, gui_window_get_realrect(w));
         if (t->root_widget)
-            gui_refresh_widget(t->root_widget);
+            gui_set_widget_dirty(t->root_widget);
     }
-    TimerForce(TimerGUI);
 
 out:
     unlock_kernel();
-    TaskSleep(15uL);
+    gui_service_wait_refresh();
 
     return;
 }
@@ -324,10 +321,9 @@ static void __do_window_relocation_resize(
     if (!w || w->magic != WINDOW_MAGIC || !w->root_widget)
         return;
 
-    TimerForce(TimerGUI);
-    TaskSleep(35uL);    /* 让有需要的控件刷新一次, 35ms应该够了吧 */
-
+    gui_service_wait_refresh();
     lock_kernel();
+
     if (!(w->flag & WINDOW_FLAG_SHOW))
         goto do_set_it;
 
@@ -337,7 +333,7 @@ static void __do_window_relocation_resize(
         if (!(t->flag & WINDOW_FLAG_SHOW))
             continue;   /* 不理会隐藏窗口 */
         gui_window_set_dirty(t, gui_window_get_realrect(w));
-        gui_refresh_widget(t->root_widget);
+        gui_set_widget_dirty(t->root_widget);
     }
 
 do_set_it:
@@ -362,9 +358,7 @@ do_set_it:
     gui_window_clear_dirty(w);
 
     unlock_kernel();
-
-    TimerForce(TimerGUI);
-    TaskSleep(15uL);
+    gui_service_wait_refresh();
 
     return;
 }
@@ -588,6 +582,8 @@ void __sysonly gui_window_action(gui_window_t * w)
     gdc_set_myself_window(w);
     gui_draw_widget(w->root_widget);
     gdc_set_myself_window(NULL);
+
+    gui_window_clear_dirty(w);  /* clear the dirty rect */
 }
 
 

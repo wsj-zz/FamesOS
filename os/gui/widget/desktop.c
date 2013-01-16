@@ -85,10 +85,10 @@ void  __internal gui_draw_desktop(gui_widget * c)
         return;
 
     bkcolor = c->bkcolor;
-    if(bkcolor==0)
+    if (bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
     
-    if(c->flag & GUI_WIDGET_FLAG_REFRESH){
+    if (c->flag & GUI_WIDGET_FLAG_NEED_REFRESH) {
         if(c->style & DESKTOP_STYLE_TRANSPARENT)
             goto out;
 

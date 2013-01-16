@@ -126,19 +126,19 @@ void gui_draw_progress(gui_widget * progress)
     if(bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
 
-    if(progress->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(progress->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         if(progress->style & PROGRESS_STYLE_XP_BORDER){
             move = gui_widget_draw_xp_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);
-        } 
+        }
         if(progress->style & PROGRESS_STYLE_MODAL_FRAME){
             move = gui_widget_draw_modal_frame(x, y, x1, y1);
             ___gui_widget_xy_move(move);
-        } 
+        }
         if(progress->style & PROGRESS_STYLE_CLIENT_BDR){
             move = gui_widget_draw_client_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);
-        } 
+        }
         if(progress->style & PROGRESS_STYLE_BORDER){
             move = gui_widget_draw_static_bdr(x, y, x1, y1);
             ___gui_widget_xy_move(move);
@@ -151,7 +151,7 @@ void gui_draw_progress(gui_widget * progress)
         }
         if(progress->style & PROGRESS_STYLE_SMOOTH)
             gui_init_rect(inner_rect, x+1, y+1, (x1-x)-2, (y1-y)-2);
-        else 
+        else
             gui_init_rect(inner_rect, x+1, y+1, (x1-x)-2, (y1-y)-2);
         t->old_value = -1;
     } else {
@@ -218,9 +218,9 @@ void __internal guical __gui_progress_draw_progress(int x, int y, int x1, int y1
             gdi_draw_box(x, y, x1, y1, bkcolor);
     }
     return;
-    out:
+
+out:
     return;
-        
 }
 /*=========================================================================================
  * 

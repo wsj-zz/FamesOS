@@ -112,7 +112,7 @@ void gui_draw_dashedline(gui_widget * dashedline)
     if(!dashedline)
         return;
 
-    if(dashedline->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(dashedline->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         t = (gui_dashed_private *)dashedline->private_data;
         if(!t)
             return;

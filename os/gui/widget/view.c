@@ -809,8 +809,6 @@ void gui_draw_view(gui_widget * view)
     view_get_max_index_f    get_max_index;
     view_show_statistics_f  show_statistics;
     view_notifier_f         notifier_on_changed;
-    int has_dirty = NO;
-    gui_window_t * win = NULL;
 
     FamesAssert(view);
     if(!view)
@@ -838,12 +836,7 @@ void gui_draw_view(gui_widget * view)
     height_per_row = t->height_per_row;
     __height_per_row = height_per_row - 1; /* 一笔记录显示的高度 */
     
-    win = gui_find_window_from_widget(view);
-    if (win) {
-        has_dirty = gui_window_dirty_mask(win);
-    }
-
-    if(view->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(view->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = view->real_rect.x;
         y  = view->real_rect.y;
         x1 = __gui_make_x2(x, view->real_rect.width);
@@ -987,7 +980,9 @@ void gui_draw_view(gui_widget * view)
         t->statistic_buf_old[0] = 0;
         MEMSET((INT08S *)t->records_buf_old, 0, t->sizeof_records_buf_old);
         gui_refresh_widget(&t->__edit);
-    } else { /* if(view->flag & GUI_WIDGET_FLAG_REFRESH) */
+    } /* if(view->flag & GUI_WIDGET_FLAG_REFRESH) */
+
+    if (1) { /* Always refresh content */
         int  first_record_index;
         int  first_index_old;
         int  selected_index_old;
@@ -1047,7 +1042,6 @@ void gui_draw_view(gui_widget * view)
 
         if(selected_index_old >= 0){
             ___old = (selected_index_old - first_index_old);
-            
         } else {
             ___old = -1;
         }
@@ -1200,10 +1194,6 @@ void gui_draw_view(gui_widget * view)
             }
         }
         t->data_displayed = 1; /* 数据已显示过 */
-    }
-
-    if (win) {
-        gui_window_dirty_unmask(win, has_dirty);
     }
 
     return;

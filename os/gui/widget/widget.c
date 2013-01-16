@@ -160,6 +160,42 @@ BOOL guical gui_refresh_widget(gui_widget * c)
 }
 
 /*------------------------------------------------------------------------------------
+ * 函数:    gui_set_widget_dirty()
+ *
+ * 描述:    标记一个控件已被弄脏(及子控件)
+ *
+ * 说明:    其实只是加一个脏标记而已
+**----------------------------------------------------------------------------------*/
+BOOL guical gui_set_widget_dirty(gui_widget * c)
+{
+    gui_widget * t;
+
+    FamesAssert(c);
+
+    if(!c)
+        return fail;
+
+    if(c->flag & GUI_WIDGET_FLAG_HIDE)
+        return ok;
+
+    #if 0
+    if(c->flag & GUI_WIDGET_FLAG_DIRTY)
+        return ok;
+    #endif
+
+    lock_kernel();
+    c->flag |= GUI_WIDGET_FLAG_DIRTY;
+    t = c->child;
+    while(t){
+        if(!gui_set_widget_dirty(t)){;}
+        t = t->next;
+    }
+    unlock_kernel();
+
+    return ok;
+}
+
+/*------------------------------------------------------------------------------------
  * 函数:    gui_set_widget_rect()
  *
  * 描述:    设置一个控件的位置与大小
@@ -642,10 +678,31 @@ void guical gui_destroy_widget(gui_widget * c)
 **----------------------------------------------------------------------------------*/
 BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
 {
-    FamesAssert(c);
+    int has_dirty = NO;
+    gui_window_t * win = NULL;
 
-    if(!c)
+    FamesAssert(c);
+    if (!c)
         return fail;
+
+    #if 0
+    if (c->flag & GUI_WIDGET_FLAG_REFRESH &&
+        c->flag & GUI_WIDGET_FLAG_DIRTY) {
+        printf("FLAG_REFRESH and FLAG_DIRTY both appear\n");
+    }
+    #endif
+
+    /* FIXME: 由于在处理dirty-rect方面还有问题, 暂时先屏蔽其功能, 2012-1-16 */
+    #if 1
+    if (c->flag & GUI_WIDGET_FLAG_NEED_REFRESH) {
+    #else
+    if (c->flag & GUI_WIDGET_FLAG_REFRESH) {
+    #endif
+        win = gdc_get_myself_window();
+        if (win) {
+            has_dirty = gui_window_dirty_mask(win);
+        }
+    }
 
     if (c->user_draw_method) {
         (*c->user_draw_method)(c);
@@ -696,7 +753,16 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
     }
 
 draw_ok:
+    if (win) {
+        gui_window_dirty_unmask(win, has_dirty);
+    }
+    if (c->flag & GUI_WIDGET_FLAG_REFRESH) {
+        c->flag |= GUI_WIDGET_FLAG_AFTER_REF;
+    } else {
+        c->flag &= ~GUI_WIDGET_FLAG_AFTER_REF;
+    }
     c->flag &= ~GUI_WIDGET_FLAG_REFRESH;
+    c->flag &= ~GUI_WIDGET_FLAG_DIRTY;
     c->flag |=  GUI_WIDGET_FLAG_VISIBLE;
 
     return ok;

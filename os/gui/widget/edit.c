@@ -555,7 +555,7 @@ void gui_draw_edit(gui_widget * edit)
     if(bkcolor==0)
         bkcolor = WIDGET_EDIT_BKCOLOR;
 
-    if(edit->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(edit->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = edit->real_rect.x;
         y  = edit->real_rect.y;
         x1 = __gui_make_x2(x, edit->real_rect.width);

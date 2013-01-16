@@ -108,6 +108,10 @@ void guical StartGUI(void)
 
     if(htask != InvalidHandle){
         TaskResume(htask);
+    } else {
+        sys_print("Fatal: There is no GUI-SERVICE daemon!\n");
+        waitkey(0);
+        ExitApplication();
     }
 }
 

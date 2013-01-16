@@ -119,7 +119,7 @@ void gui_draw_groupbox(gui_widget * groupbox)
     if(bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
     
-    if(groupbox->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(groupbox->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = groupbox->real_rect.x;
         y  = groupbox->real_rect.y;
         x1 = __gui_make_x2(x, groupbox->real_rect.width);

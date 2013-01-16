@@ -119,7 +119,7 @@ void gui_draw_sys_mntr(gui_widget * sys_mntr)
         bkcolor = WIDGET_BKCOLOR;
 
     lock_kernel();
-    if(sys_mntr->flag & GUI_WIDGET_FLAG_REFRESH || (t->tasks_old!=NumberOfTasks)){
+    if(sys_mntr->flag & GUI_WIDGET_FLAG_NEED_REFRESH || (t->tasks_old!=NumberOfTasks)){
         if(sys_mntr->real_rect.width < 780)
             sys_mntr->real_rect.width = 780; /* 780与640是一个经验值, 可修改 */
         if(sys_mntr->real_rect.height < 640)

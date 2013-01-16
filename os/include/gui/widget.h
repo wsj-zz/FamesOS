@@ -65,7 +65,11 @@ enum __GUI_WIDGET_TYPE {
 **---------------------------------------------------------------------------------------*/
 #define  GUI_WIDGET_FLAG_HIDE         0x0001   /* 隐藏 */
 #define  GUI_WIDGET_FLAG_REFRESH      0x0002   /* 刷新 */
+#define  GUI_WIDGET_FLAG_DIRTY        0x0004   /* 脏, 控件需要刷新DirtyRect */
+#define  GUI_WIDGET_FLAG_AFTER_REF    0x0008   /* 刚刚刷新之后, 暂不用 */
 
+#define  GUI_WIDGET_FLAG_NEED_REFRESH \
+            (GUI_WIDGET_FLAG_REFRESH | GUI_WIDGET_FLAG_DIRTY)
 
 /* FIXME: 此标志实现的太过粗糙, 需要仔细考虑...
  * 在很多情况下, 此标志的意义都是错的, 因为这个标志只在hide中清除,
@@ -87,6 +91,7 @@ BOOL guical gui_show_widget(gui_widget * c);
 BOOL guical gui_hide_widget(gui_widget * c);
 BOOL guical gui_draw_widget(gui_widget * c);
 BOOL guical gui_refresh_widget(gui_widget * c);
+BOOL guical gui_set_widget_dirty(gui_widget * c);
 BOOL guical gui_set_widget_rect(gui_widget * c, RECT * rect);
 BOOL guical gui_set_widget_location(gui_widget * c, int x, int y);
 BOOL guical gui_set_widget_dimension(gui_widget * c, int width, int height);

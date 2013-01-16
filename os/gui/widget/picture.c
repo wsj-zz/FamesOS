@@ -104,7 +104,7 @@ void gui_draw_picture(gui_widget * pic)
     if(!pic)
         return;
 
-    if(pic->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(pic->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = pic->real_rect.x;
         y  = pic->real_rect.y;
         x1 = __gui_make_x2(x, pic->real_rect.width);

@@ -153,7 +153,7 @@ void gui_draw_form(gui_widget * form)
     if(bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
     
-    if(form->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(form->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = form->real_rect.x;
         y  = form->real_rect.y;
         x1 = __gui_make_x2(x, form->real_rect.width);

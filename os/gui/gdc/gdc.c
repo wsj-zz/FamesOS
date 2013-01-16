@@ -414,6 +414,8 @@ void __sysonly gdc_set_myself_window(gui_window_t * w)
     unlock_kernel();
 }
 
+/* 此函数只能由gui-service-daemon调用
+*/
 gui_window_t * __sysonly gdc_get_myself_window(void)
 {
     gui_window_t * w;

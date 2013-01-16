@@ -125,7 +125,7 @@ void gui_draw_button(gui_widget * button)
     if(bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
     
-    if(button->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(button->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = button->real_rect.x;
         y  = button->real_rect.y;
         x1 = __gui_make_x2(x, button->real_rect.width);

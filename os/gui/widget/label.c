@@ -122,7 +122,7 @@ void gui_draw_label(gui_widget * label)
     if(bkcolor==0)
         bkcolor = WIDGET_BKCOLOR;
     
-    if(label->flag & GUI_WIDGET_FLAG_REFRESH){
+    if(label->flag & GUI_WIDGET_FLAG_NEED_REFRESH){
         x  = label->real_rect.x;
         y  = label->real_rect.y;
         x1 = __gui_make_x2(x, label->real_rect.width);
