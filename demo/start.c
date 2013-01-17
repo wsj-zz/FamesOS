@@ -205,7 +205,7 @@ BOOL set_item(int index, int field_id, char *buf, int buf_len, KEYCODE key, INT1
             t->old = atoi(buf);
             break;
         case __id_sss:
-            sprintf(t->comment, buf);
+            sprintf(t->comment, "%s", buf);
             break;
         default:
             break;
@@ -449,7 +449,7 @@ void demo_init_gui(void)
         goto err;
     init_view(view);
 
-    progress1 = gui_create_widget(GUI_WIDGET_PROGRESS, 80, 251, 460, 14, 0, 0, 0, PROGRESS_STYLE_BORDER|PROGRESS_STYLE_SMOOTH);
+    progress1 = gui_create_widget(GUI_WIDGET_PROGRESS, 80, 251, 460, 14, 0, 0, 0, PROGRESS_STYLE_BORDER);
     if(!progress1)
         goto err;
     gui_progress_init_private(progress1, 100);
@@ -506,13 +506,15 @@ void __task refresh_task(void * data)
         sprintf(buf, "[%d%%] %ld 将那个Label盖住", CPU_USED, count*3);
         gui_button_set_caption(button, buf);
 
-        if (0) {
+        if (1) {
             static int f = 0, i = 0;
-            static KEYCODE test_keys[] = {'d', ENTER, ESC, 'f', ENTER, 'h', ENTER, ESC};
+            static KEYCODE key, test_keys[] = {'d', ENTER, ESC, 'f', ENTER, 'h', ENTER, ESC};
 
             if (--f <= 0) {
-                f = 20;
-                putkey(test_keys[i++]);
+                f = 2;
+                /* key = test_keys[i++]; */
+                key = random(128);
+                putkey(key);
                 if (i >= sizeof(test_keys))
                     i = 0;
             }
@@ -522,7 +524,7 @@ void __task refresh_task(void * data)
             static int f = 0, x = 0, y = 0;
 
             if (--f <= 0) {
-                f = 200;
+                f = 500;
                 x = random(900);
                 y = random(700);
                 gui_window_moveto(window3, x, y);
@@ -598,7 +600,9 @@ void __task start(void * data)
                 break;
             case 'p':
             case 'P':
+                /*
                 gui_progress_set_value(progress1, atoi(&buf[1]));
+                */
                 break;
             case 'a':
             case 'A':
