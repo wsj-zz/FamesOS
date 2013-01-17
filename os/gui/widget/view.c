@@ -220,7 +220,7 @@ BOOL guical gui_view_init_private( gui_widget * view,
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_goto_top()
  *
- * 描述:    选中第一笔订单
+ * 描述:    选中第一笔记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_goto_top(gui_widget *view)
 {
@@ -249,7 +249,7 @@ BOOL guical gui_view_goto_top(gui_widget *view)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_goto_bottom()
  *
- * 描述:    选中最后一笔订单
+ * 描述:    选中最后一笔记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_goto_bottom(gui_widget *view)
 {
@@ -290,7 +290,7 @@ BOOL guical gui_view_goto_bottom(gui_widget *view)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_move_up()
  *
- * 描述:    选中上一笔订单
+ * 描述:    选中上一笔记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_move_up(gui_widget *view)
 {
@@ -327,7 +327,7 @@ BOOL guical gui_view_move_up(gui_widget *view)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_move_down()
  *
- * 描述:    选中下一笔订单
+ * 描述:    选中下一笔记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_move_down(gui_widget *view)
 {
@@ -366,7 +366,7 @@ BOOL guical gui_view_move_down(gui_widget *view)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_page_up()
  *
- * 描述:    查看上一页订单
+ * 描述:    查看上一页记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_page_up(gui_widget *view)
 {
@@ -403,7 +403,7 @@ BOOL guical gui_view_page_up(gui_widget *view)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_page_down()
  *
- * 描述:    查看下一页订单
+ * 描述:    查看下一页记录
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_view_page_down(gui_widget *view)
 {
@@ -491,7 +491,7 @@ BOOL guical gui_view_select_index(gui_widget *view, int index)
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_view_get_selected()
  *
- * 描述:    返回选中订单的序号
+ * 描述:    返回选中记录的序号
 **---------------------------------------------------------------------------------------*/
 int guical gui_view_get_selected(gui_widget *view)
 {
@@ -503,7 +503,9 @@ int guical gui_view_get_selected(gui_widget *view)
     if(!view)
         return -1;
 
+    lock_kernel();
     t = (gui_view_private *)view->private_data;
+    unlock_kernel();
     if(!t)
         return -1;
 
@@ -750,7 +752,7 @@ out_directly:
 /*-----------------------------------------------------------------------------------------
  * 函数:    ____draw_blank_for_records()
  *
- * 描述:    由订单的选中状态变化而引起的背景重绘
+ * 描述:    由记录的选中状态变化而引起的背景重绘
 **---------------------------------------------------------------------------------------*/
 static void ____draw_blank_for_records(int x, int y, int x2, int y2, gui_view_private * t,
                                        COLOR bkcolor, COLOR marker_bkcolor, INT16U style)
@@ -987,6 +989,7 @@ void gui_draw_view(gui_widget * view)
         int  first_index_old;
         int  selected_index_old;
         int  selected_index_curr;
+        int  max_index_changed;
         int  ___old, ___cur;
         int  to_left, ___tmp;
         char * old_buf_for_records;
@@ -999,6 +1002,10 @@ void gui_draw_view(gui_widget * view)
                 gui_view_goto_bottom(view);
             }
         }
+        if(___tmp != t->max_index_old)
+            max_index_changed = YES;
+        else
+            max_index_changed = NO;
         t->max_index_old = ___tmp;
 
         if(t->selected_index_curr < 0)
@@ -1033,7 +1040,7 @@ void gui_draw_view(gui_widget * view)
         selected_index_curr = t->selected_index_curr;
         selected_index_old  = t->selected_index_old;
 
-        if(selected_index_curr != selected_index_old){
+        if(max_index_changed || (selected_index_curr != selected_index_old)){
             if(notifier_on_changed)
                 notifier_on_changed(selected_index_curr, selected_index_old, 0);
         }
@@ -1058,9 +1065,9 @@ void gui_draw_view(gui_widget * view)
 
         to_left = 2;
 
-        if(___cur != ___old){  /* 选中了另一笔订单 */
+        if(___cur != ___old){  /* 选中了另一笔记录 */
             if(___old >= 0){
-                if(___old == 0 && first_record_index == 0){ /* 第一笔订单 */
+                if(___old == 0 && first_record_index == 0){ /* 第一笔记录 */
                     bkcolor = __FIRST_ORDER_BK;
                 } else {
                     bkcolor = __NORMAL_ORDER_BK;
@@ -1118,14 +1125,14 @@ void gui_draw_view(gui_widget * view)
         y = __y;
 
         for(i=0; i<records_nr; i++){
-            if(i == ___cur) { /* 被选中的订单 */
+            if(i == ___cur) { /* 被选中的记录 */
                 color   = __SELECT_ORDER;
                 bkcolor = __SELECT_ORDER_BK;
                 if(view->style & VIEW_STYLE_NONE_SELECT){ /* 无选中状态, 无特殊显示 */
                     color   = __NORMAL_ORDER;
                     bkcolor = __NORMAL_ORDER_BK;
                 }
-            } else if(first_record_index == 0 && i == 0){ /* 第一笔订单 */
+            } else if(first_record_index == 0 && i == 0){ /* 第一笔记录 */
                 color   = __FIRST_ORDER;
                 bkcolor = __FIRST_ORDER_BK;
                 if(view->style & VIEW_STYLE_NONE_FIRST){  /* 无首笔状态, 无特殊显示 */
