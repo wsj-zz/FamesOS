@@ -152,6 +152,8 @@ void gui_draw_groupbox(gui_widget * groupbox)
         } 
     }
 
+    gui_clr_widget_changed(groupbox);
+
 out:
     return;
 }

@@ -63,10 +63,11 @@ enum __GUI_WIDGET_TYPE {
  *      控件标志
  * 
 **---------------------------------------------------------------------------------------*/
-#define  GUI_WIDGET_FLAG_HIDE         0x0001   /* 隐藏 */
-#define  GUI_WIDGET_FLAG_REFRESH      0x0002   /* 刷新 */
-#define  GUI_WIDGET_FLAG_DIRTY        0x0004   /* 脏, 控件需要刷新DirtyRect */
-#define  GUI_WIDGET_FLAG_AFTER_REF    0x0008   /* 刚刚刷新之后, 暂不用 */
+#define  GUI_WIDGET_FLAG_HIDE            0x0001   /* 隐藏 */
+#define  GUI_WIDGET_FLAG_REFRESH         0x0002   /* 刷新 */
+#define  GUI_WIDGET_FLAG_DIRTY           0x0004   /* 脏, 控件需要刷新DirtyRect */
+#define  GUI_WIDGET_FLAG_AFTER_REFRESH   0x0008   /* 刚刚刷新之后, 暂不用 */
+
 
 #define  GUI_WIDGET_FLAG_NEED_REFRESH \
             (GUI_WIDGET_FLAG_REFRESH | GUI_WIDGET_FLAG_DIRTY)
@@ -107,6 +108,7 @@ BOOL guical gui_set_widget_rect(gui_widget * c, RECT * rect);
 BOOL guical gui_set_widget_location(gui_widget * c, int x, int y);
 BOOL guical gui_set_widget_dimension(gui_widget * c, int width, int height);
 BOOL guical gui_set_widget_changed(gui_widget * c);
+BOOL guical gui_clr_widget_changed(gui_widget * c);
 BOOL guical gui_is_widget_changed(gui_widget * c);
 BOOL guical gui_move_widget_up(gui_widget * c, int up);
 BOOL guical gui_move_widget_down(gui_widget * c, int down);
@@ -158,6 +160,17 @@ int  guical gui_widget_draw_groupbox_bdr(int x, int y, int x1, int y1);
                     (x+=move, y+=move, x1-=move, y1-=move)
 
 
+#if 0
+/* BUG: 刚显示完first_step(FLAG_REFRESH), 尚未显示second_step,
+        这时一个dirty_rect设了进来, 然后就在dirty_rect的范置显示
+        所有的内容, 实际上, 这时候显示的内容根本就不完整
+*/
+#define maybe_second_step(flag)  \
+                (((flag) & GUI_WIDGET_FLAG_DIRTY) || \
+                !((flag) & GUI_WIDGET_FLAG_REFRESH))
+#else
+#define maybe_second_step(flag) (1)
+#endif
 
 #endif /* #ifndef FAMES_GUI_WIDGET_H */
 

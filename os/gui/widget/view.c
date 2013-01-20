@@ -984,7 +984,7 @@ void gui_draw_view(gui_widget * view)
         gui_refresh_widget(&t->__edit);
     } /* if(view->flag & GUI_WIDGET_FLAG_REFRESH) */
 
-    if (1) { /* Always refresh content */
+    if (maybe_second_step(view->flag)) {
         int  first_record_index;
         int  first_index_old;
         int  selected_index_old;
@@ -1201,6 +1201,8 @@ void gui_draw_view(gui_widget * view)
             }
         }
         t->data_displayed = 1; /* 数据已显示过 */
+
+        gui_clr_widget_changed(view);
     }
 
     return;

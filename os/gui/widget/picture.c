@@ -165,6 +165,8 @@ void gui_draw_picture(gui_widget * pic)
         ;
     }
 
+    gui_clr_widget_changed(pic);
+
     return;
 }
 

@@ -164,36 +164,40 @@ BOOL guical gui_refresh_widget(gui_widget * c)
  *
  * 描述:    标记一个控件已被弄脏(及子控件)
  *
+ * 参数:    @dirty_rect: NULL=从myself_window计算dirty_rect
+ *
  * 说明:    其实只是加一个脏标记而已
 **----------------------------------------------------------------------------------*/
 BOOL guical gui_set_widget_dirty(gui_widget * c, RECT * dirty_rect)
 {
     gui_widget * t;
+    gui_window_t * win;
 
     FamesAssert(c);
 
     if(!c)
         return fail;
 
-    /* 看我们的位置与dirty_rect是否有重叠的地方 */
-    if (!gdc_is_rect_intersect(&c->real_rect, dirty_rect))
-        return ok;
-
     if(c->flag & GUI_WIDGET_FLAG_HIDE)
         return ok;
 
-    #if 0
-    if(c->flag & GUI_WIDGET_FLAG_DIRTY)
-        return ok;
-    #endif
-
     lock_kernel();
+    if (!dirty_rect) {
+        win = gui_find_window_from_widget(c);
+        if (!win)
+            goto out;
+        dirty_rect = &win->dirty_rect;
+    }
+    /* 看我们的位置与dirty_rect是否有重叠的地方 */
+    if (!gdc_is_rect_intersect(&c->real_rect, dirty_rect))
+        goto out;
     c->flag |= GUI_WIDGET_FLAG_DIRTY;
     t = c->child;
     while(t){
         if(!gui_set_widget_dirty(t, dirty_rect)){;}
         t = t->next;
     }
+out:
     unlock_kernel();
 
     return ok;
@@ -273,6 +277,24 @@ BOOL guical gui_set_widget_changed(gui_widget * c)
 
     lock_kernel();
     c->flag |= GUI_WIDGET_FLAG_CHANGED;
+    unlock_kernel();
+
+    return ok;
+}
+
+/*------------------------------------------------------------------------------------
+ * 函数:    gui_clr_widget_changed()
+ *
+ * 描述:    清除控件的GUI_WIDGET_FLAG_CHANGED标志
+**----------------------------------------------------------------------------------*/
+BOOL guical gui_clr_widget_changed(gui_widget * c)
+{
+    FamesAssert(c);
+    if(!c)
+        return fail;
+
+    lock_kernel();
+    c->flag &= ~GUI_WIDGET_FLAG_CHANGED;
     unlock_kernel();
 
     return ok;
@@ -776,7 +798,7 @@ INT16U guical __internal __gui_widget_get_property(gui_widget * c)
 BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
 {
     int has_dirty = NO;
-    INT16U property, refresh_flag;
+    INT16U property;
     gui_window_t * win = NULL;
 
     FamesAssert(c);
@@ -790,17 +812,19 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
     }
     #endif
 
-    property = __gui_widget_get_property(c);
-    refresh_flag = GUI_WIDGET_FLAG_REFRESH;
-    if (property & GUI_WIDGET_PROP_REFRESH_DIRTY)
-        refresh_flag |= GUI_WIDGET_FLAG_DIRTY;
+    if (c->flag & GUI_WIDGET_FLAG_DIRTY) {
+        property = __gui_widget_get_property(c);
+        if (property & GUI_WIDGET_PROP_REFRESH_DIRTY) {
+            gui_refresh_widget(c); /* 需要刷新自己的控件树 */
+        }
+    }
 
-    if (c->flag & refresh_flag) {
+    if (c->flag & GUI_WIDGET_FLAG_REFRESH ||
+        !(c->flag & GUI_WIDGET_FLAG_DIRTY)) {
         win = gdc_get_myself_window();
         if (win) {
             has_dirty = gui_window_dirty_mask(win);
         }
-        gui_refresh_widget(c);
     }
 
     if (c->user_draw_method) {
@@ -856,13 +880,12 @@ draw_ok:
         gui_window_dirty_unmask(win, has_dirty);
     }
     if (c->flag & GUI_WIDGET_FLAG_REFRESH) {
-        c->flag |= GUI_WIDGET_FLAG_AFTER_REF;
+        c->flag |= GUI_WIDGET_FLAG_AFTER_REFRESH;
     } else {
-        c->flag &= ~GUI_WIDGET_FLAG_AFTER_REF;
+        c->flag &= ~GUI_WIDGET_FLAG_AFTER_REFRESH;
     }
     c->flag &= ~GUI_WIDGET_FLAG_REFRESH;
     c->flag &= ~GUI_WIDGET_FLAG_DIRTY;
-    c->flag &= ~GUI_WIDGET_FLAG_CHANGED;
     c->flag |=  GUI_WIDGET_FLAG_VISIBLE;
 
     return ok;

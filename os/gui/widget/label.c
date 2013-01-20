@@ -165,7 +165,9 @@ void gui_draw_label(gui_widget * label)
         x+=2; x1-=2; y+=1;
         gui_init_rect(inner_rect, x, y, (x1-x), (y1-y));
         t->text_old[0] = 0;
-    } else {
+    }
+
+    if (maybe_second_step(label->flag)) {
         INT16U __opt;
 
         __opt = DRAW_OPT_FIL_BG;
@@ -176,6 +178,8 @@ void gui_draw_label(gui_widget * label)
 
         draw_font_for_widget(inner_rect->x, inner_rect->y, inner_rect->width, inner_rect->height, 
                              t->text, t->text_old, label->color, bkcolor, label->font, __opt);
+
+        gui_clr_widget_changed(label);
     }
 
     return;

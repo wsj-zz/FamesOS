@@ -211,7 +211,9 @@ void gui_draw_form(gui_widget * form)
         if(form->style & FORM_STYLE_TITLE){
             ShowBmp(x+2, form->real_rect.y+t->icon_y_start, &t->icon);
         }
-    } else {
+    }
+
+    if (maybe_second_step(form->flag)) {
         if(form->style & FORM_STYLE_TITLE){
             if(form->style & FORM_STYLE_XP_BORDER)
                 bkcolor = WIDGET_COLOR_TITLE_XP;
@@ -221,6 +223,7 @@ void gui_draw_form(gui_widget * form)
                                  (inner_rect->width-8)-t->x_start, 26, 
                                   t->caption, t->caption_old, COLOR_WHITE, bkcolor, form->font, DRAW_OPT_FIL_BG);
         }
+        gui_clr_widget_changed(form);
     }
 
     return;

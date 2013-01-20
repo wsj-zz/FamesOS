@@ -269,7 +269,7 @@ void guical gui_hide_window(gui_window_t * w)
         dirty_rect = gui_window_get_realrect(w);
         gui_window_set_dirty(t, dirty_rect);
         if (t->root_widget)
-            gui_set_widget_dirty(t->root_widget, dirty_rect);
+            gui_set_widget_dirty(t->root_widget, NULL);
     }
 
 out:
@@ -337,7 +337,7 @@ static void __do_window_relocation_resize(
             continue;   /* 不理会隐藏窗口 */
         dirty_rect = gui_window_get_realrect(w);
         gui_window_set_dirty(t, dirty_rect);
-        gui_set_widget_dirty(t->root_widget, dirty_rect);
+        gui_set_widget_dirty(t->root_widget, NULL);
     }
 
 do_set_it:

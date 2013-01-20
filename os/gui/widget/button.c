@@ -190,11 +190,15 @@ void gui_draw_button(gui_widget * button)
         }
         gui_init_rect(inner_rect, x, y, (x1-x)+1, (y1-y)+1);
         t->caption_old[0] = 0;
-    } else {
+    }
+
+    if (maybe_second_step(button->flag)) {
         if(button->style & BUTTON_STYLE_PRESSED)
             bkcolor = WIDGET_COLOR_NORMAL_BDR4;
         draw_font_for_widget(inner_rect->x, inner_rect->y, inner_rect->width, inner_rect->height, 
                              t->caption, t->caption_old, button->color, bkcolor, button->font, DRAW_OPT_FIL_BG|DRAW_OPT_ALIGN_CENTER);
+
+        gui_clr_widget_changed(button);
     }
         
     return;

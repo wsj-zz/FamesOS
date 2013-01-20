@@ -193,7 +193,9 @@ BOOL guical gui_edit_blink_off(gui_widget * edit, INT16U opt)
     lock_kernel();
     t->blink_on = 0;
     __gui_edit_hide_blink(edit, t, edit->style);
+    gdc_set_myself_window_from_widget(edit);
     gui_draw_edit(edit);
+    gdc_set_myself_window(NULL);
     unlock_kernel();
 
     opt = opt;
@@ -635,7 +637,9 @@ void gui_draw_edit(gui_widget * edit)
             t->blink_state = 0;
             t->blink_counter = 0;
         }
-    } else {
+    }
+
+    if (maybe_second_step(edit->flag)) {
         INT16U __opt;
         INT08S * __text;
         int  i;
@@ -670,6 +674,8 @@ void gui_draw_edit(gui_widget * edit)
         }
         draw_font_for_widget(inner_rect->x, inner_rect->y, inner_rect->width, inner_rect->height, 
                              __text, t->text_old, edit->color, bkcolor, edit->font, __opt);
+
+        gui_clr_widget_changed(edit);
     }
 
     return;

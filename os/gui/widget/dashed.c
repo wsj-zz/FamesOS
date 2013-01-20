@@ -171,6 +171,8 @@ void gui_draw_dashedline(gui_widget * dashedline)
     } else {
         ; /* 只有在刷新时才会重画 */
     }
+
+    gui_clr_widget_changed(dashedline);
         
     return;
 }

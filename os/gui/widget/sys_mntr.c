@@ -163,7 +163,9 @@ void gui_draw_sys_mntr(gui_widget * sys_mntr)
         gui_init_rect(inner_rect, x, y, (x1-x)+1, (y1-y)+1);
         MEMSET((INT08S *)t, 0, sizeof(*t));
         t->tasks_old = NumberOfTasks;
-    } else {
+    }
+
+    if (maybe_second_step(sys_mntr->flag)) {
         INT32S s[6];
         
         x  = sys_mntr->real_rect.x + 12;
@@ -223,6 +225,8 @@ void gui_draw_sys_mntr(gui_widget * sys_mntr)
             draw_font_for_widget(x, y, sys_mntr->real_rect.width - 64, 0, str, t->running_time, color, bkcolor, 2, DRAW_OPT_FIL_BG);
             y += 32;
         }
+
+        gui_clr_widget_changed(sys_mntr);
     }
     unlock_kernel();
 }

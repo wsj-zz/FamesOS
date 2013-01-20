@@ -104,6 +104,7 @@ void  __internal gui_draw_desktop(gui_widget * c)
     }
 
 out:
+    gui_clr_widget_changed(c);
     return;
 }
 

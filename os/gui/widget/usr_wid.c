@@ -207,7 +207,7 @@ BOOL __internal guical __gui_draw_usr_widget(gui_widget * c)
 
     if(draw){
         retval = ok;
-        (*draw)(c);
+        (*draw)(c); /* user widget should call gui_clr_widget_changed(edit); */
     }
     
     return retval;

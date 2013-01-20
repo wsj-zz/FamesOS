@@ -164,13 +164,17 @@ void gui_draw_progress(gui_widget * progress)
         else
             gui_init_rect(inner_rect, x+1, y+1, (x1-x)-2, (y1-y)-2);
         t->old_value = -1;
-    } else {
+    }
+
+    if (maybe_second_step(progress->flag)) {
         x = inner_rect->x;
         y = inner_rect->y;
         if(t->old_value != t->current)
             __gui_progress_draw_progress(x, y, (x+inner_rect->width), (y+inner_rect->height), 
                                          color, bkcolor, t->full_value, t->current, t->old_value, progress->style);
         t->old_value = t->current;
+
+        gui_clr_widget_changed(progress);
     }
 
     return;
