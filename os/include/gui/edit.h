@@ -28,6 +28,7 @@
 #define EDIT_STYLE_PASSWORD         0x2000       /* 密码输入框 */
 #define EDIT_STYLE_IN_VIEW          0x4000       /* VIEW编辑用 */
 
+
 /*-----------------------------------------------------------------------------------------
  * 
  *      EDIT关联变量标志
@@ -37,6 +38,7 @@
 #define EDIT_ASSOC_FLAG_INT16     0x00020000    /* 关联变量是个16位的数 */
 #define EDIT_ASSOC_FLAG_INT32     0x00030000    /* 关联变量是个32位的数 */
 #define EDIT_ASSOC_FLAG_INT64     0x00040000    /* 关联变量是个64位的数 */
+
 
 /*-----------------------------------------------------------------------------------------
  * 
@@ -50,6 +52,8 @@ void          gui_draw_edit(gui_widget * edit);
 BOOL  guical  gui_edit_blink_on(gui_widget * edit, int speed, int index, INT16U opt);
 BOOL  guical  gui_edit_blink_off(gui_widget * edit, INT16U opt);
 BOOL  guical  gui_edit_blink_set(gui_widget * edit, int index, INT16U opt);
+INT16U        gui_edit_get_property(gui_widget * edit);
+
 
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_edit_input()

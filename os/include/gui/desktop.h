@@ -30,6 +30,7 @@ int guical gui_desktop_set_color(COLOR color);
 
 void __internal gui_desktop_init(void);
 void __internal gui_draw_desktop(gui_widget * c);
+INT16U          gui_desktop_get_property(gui_widget * desktop);
 
 
 

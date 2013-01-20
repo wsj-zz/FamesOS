@@ -9,9 +9,9 @@
 #include "includes.h"
 
 /*-----------------------------------------------------------------------------------------
- * 
+ *
  *      PICTURE私有结构
- * 
+ *
 **---------------------------------------------------------------------------------------*/
 struct gui_picture_private_s {
     BMPINFO bmpinfo;
@@ -22,7 +22,7 @@ typedef struct gui_picture_private_s gui_picture_private;
 
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_picture_init_private()
- * 
+ *
  * 描述:    图片控件私有结构初始化
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_picture_init_private(gui_widget * pic)
@@ -60,7 +60,7 @@ BOOL guical gui_picture_init_private(gui_widget * pic)
 
 /*-----------------------------------------------------------------------------------------
  * 函数:    gui_picture_set_picture()
- * 
+ *
  * 描述:    设置图片控件的图片
 **---------------------------------------------------------------------------------------*/
 BOOL guical gui_picture_set_picture(gui_widget * pic, BMPINFO * bmpinfo)
@@ -85,12 +85,27 @@ BOOL guical gui_picture_set_picture(gui_widget * pic, BMPINFO * bmpinfo)
     }
     unlock_kernel();
     
+    gui_set_widget_changed(pic);
+
     return retval;
 }
 
 /*-----------------------------------------------------------------------------------------
+ * 函数:    gui_picture_get_property()
+ *
+ * 描述:    返回PICTURE的控件特性
+**---------------------------------------------------------------------------------------*/
+INT16U gui_picture_get_property(gui_widget * pic)
+{
+    if (gui_is_widget_changed(pic))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
+}
+
+/*-----------------------------------------------------------------------------------------
  * 函数:    gui_draw_picture()
- * 
+ *
  * 描述:    画一个图片控件
 **---------------------------------------------------------------------------------------*/
 void gui_draw_picture(gui_widget * pic)

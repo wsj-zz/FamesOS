@@ -148,6 +148,23 @@ BOOL  guical gui_deregister_usr_widget(int widget_id)
 }
 
 /*------------------------------------------------------------------------------------
+ * 函数:    __gui_usr_widget_get_property()
+ *
+ * 描述:    返回自定义控件的控件特性
+ *
+ * 参数:    c  控件指针
+ *
+ * 说明:    内部函数, 应用程序不可直接调用!
+ *
+ * FIXME:   目前始终返回GUI_WIDGET_PROP_REFRESH_DIRTY
+**----------------------------------------------------------------------------------*/
+INT16U __gui_usr_widget_get_property(gui_widget * c)
+{
+    c = c;
+    return GUI_WIDGET_PROP_REFRESH_DIRTY;
+}
+
+/*------------------------------------------------------------------------------------
  * 函数:    __gui_draw_usr_widget()
  *
  * 描述:    画一个自定义控件

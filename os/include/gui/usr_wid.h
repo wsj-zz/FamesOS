@@ -44,6 +44,7 @@ BOOL  guical gui_deregister_usr_widget(int widget_id);
  * 
 **---------------------------------------------------------------------------------------*/
 BOOL __internal guical __gui_draw_usr_widget(gui_widget *);
+INT16U  __gui_usr_widget_get_property(gui_widget * c);
 
 
 #endif /* #ifndef FAMES_GUI_USR_WIDGET_H */

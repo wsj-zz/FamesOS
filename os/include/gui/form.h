@@ -31,6 +31,7 @@ BOOL  guical  gui_form_init_private(gui_widget * form, int cap_len);
 BOOL  guical  gui_form_set_caption(gui_widget * form, INT08S * caption);
 BOOL  guical  gui_form_set_icon(gui_widget * form, BMPINFO * icon);
 void          gui_draw_form(gui_widget * form);
+INT16U        gui_form_get_property(gui_widget * form);
 
 
 

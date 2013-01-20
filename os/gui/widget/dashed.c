@@ -95,8 +95,15 @@ BOOL guical gui_dashedline_set_param(gui_widget * dashedline, int len, int offse
     unlock_kernel();
 
     gui_refresh_widget(dashedline);
+        /* due to above, gui_set_widget_changed() is not needed any more */
 
     return ok;
+}
+
+INT16U gui_dashedline_get_property(gui_widget * dashedline)
+{
+    dashedline = dashedline;
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_dashedline(gui_widget * dashedline)

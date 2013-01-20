@@ -26,6 +26,7 @@
 BOOL guical gui_dashedline_init_private(gui_widget * dashedline);
 BOOL guical gui_dashedline_set_param(gui_widget * dashedline, int len, int offset, INT08U dashed_mask);
 void        gui_draw_dashedline(gui_widget * dashedline);
+INT16U      gui_dashedline_get_property(gui_widget * dashedline);
 
 
 

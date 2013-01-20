@@ -27,6 +27,7 @@
 BOOL  guical  gui_groupbox_init_private(gui_widget * groupbox, int caption_len);
 BOOL  guical  gui_groupbox_set_caption(gui_widget * groupbox, INT08S * caption);
 void          gui_draw_groupbox(gui_widget * groupbox);
+INT16U        gui_groupbox_get_property(gui_widget * groupbox);
 
 
 #endif /* #ifndef FAMES_GUI_WIDGET_GROUPBOX_H */

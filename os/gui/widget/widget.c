@@ -166,7 +166,7 @@ BOOL guical gui_refresh_widget(gui_widget * c)
  *
  * 说明:    其实只是加一个脏标记而已
 **----------------------------------------------------------------------------------*/
-BOOL guical gui_set_widget_dirty(gui_widget * c)
+BOOL guical gui_set_widget_dirty(gui_widget * c, RECT * dirty_rect)
 {
     gui_widget * t;
 
@@ -174,6 +174,10 @@ BOOL guical gui_set_widget_dirty(gui_widget * c)
 
     if(!c)
         return fail;
+
+    /* 看我们的位置与dirty_rect是否有重叠的地方 */
+    if (!gdc_is_rect_intersect(&c->real_rect, dirty_rect))
+        return ok;
 
     if(c->flag & GUI_WIDGET_FLAG_HIDE)
         return ok;
@@ -187,7 +191,7 @@ BOOL guical gui_set_widget_dirty(gui_widget * c)
     c->flag |= GUI_WIDGET_FLAG_DIRTY;
     t = c->child;
     while(t){
-        if(!gui_set_widget_dirty(t)){;}
+        if(!gui_set_widget_dirty(t, dirty_rect)){;}
         t = t->next;
     }
     unlock_kernel();
@@ -224,7 +228,6 @@ BOOL guical gui_set_widget_rect(gui_widget * c, RECT * rect)
 BOOL guical gui_set_widget_location(gui_widget * c, int x, int y)
 {
     FamesAssert(c);
-
     if(!c)
         return fail;
 
@@ -245,7 +248,6 @@ BOOL guical gui_set_widget_location(gui_widget * c, int x, int y)
 BOOL guical gui_set_widget_dimension(gui_widget * c, int width, int height)
 {
     FamesAssert(c);
-
     if(!c)
         return fail;
 
@@ -256,6 +258,44 @@ BOOL guical gui_set_widget_dimension(gui_widget * c, int width, int height)
     unlock_kernel();
 
     return ok;
+}
+
+/*------------------------------------------------------------------------------------
+ * 函数:    gui_set_widget_changed()
+ *
+ * 描述:    标识一个控件的内容已被改变
+**----------------------------------------------------------------------------------*/
+BOOL guical gui_set_widget_changed(gui_widget * c)
+{
+    FamesAssert(c);
+    if(!c)
+        return fail;
+
+    lock_kernel();
+    c->flag |= GUI_WIDGET_FLAG_CHANGED;
+    unlock_kernel();
+
+    return ok;
+}
+
+/*------------------------------------------------------------------------------------
+ * 函数:    gui_is_widget_changed()
+ *
+ * 描述:    检查一个控件的内容是否已被改变
+**----------------------------------------------------------------------------------*/
+BOOL guical gui_is_widget_changed(gui_widget * c)
+{
+    BOOL ret = NO;
+
+    FamesAssert(c);
+    if(!c)
+        return fail;
+
+    lock_kernel();
+    ret = (c->flag & GUI_WIDGET_FLAG_CHANGED);
+    unlock_kernel();
+
+    return ret;
 }
 
 /*------------------------------------------------------------------------------------
@@ -672,6 +712,63 @@ void guical gui_destroy_widget(gui_widget * c)
 }
 
 /*------------------------------------------------------------------------------------
+ * 函数:    __gui_widget_get_property()
+ *
+ * 描述:    返回一个控件的特性
+**----------------------------------------------------------------------------------*/
+INT16U guical __internal __gui_widget_get_property(gui_widget * c)
+{
+    INT16U property = 0;
+
+    FamesAssert(c);
+    if (!c)
+        return 0;
+
+    switch (c->type) {
+        case GUI_WIDGET_FORM:
+            property = gui_form_get_property(c);
+            break;
+        case GUI_WIDGET_LABEL:
+            property = gui_label_get_property(c);
+            break;
+        case GUI_WIDGET_EDIT:
+            property = gui_edit_get_property(c);
+            break;
+        case GUI_WIDGET_BUTTON:
+            property = gui_button_get_property(c);
+            break;
+        case GUI_WIDGET_PROGRESS:
+            property = gui_progress_get_property(c);
+            break;
+        case GUI_WIDGET_PICTURE:
+            property = gui_picture_get_property(c);
+            break;
+        case GUI_WIDGET_GROUPBOX:
+            property = gui_groupbox_get_property(c);
+            break;
+        case GUI_WIDGET_VIEW:
+            property = gui_view_get_property(c);
+            break;
+        case GUI_WIDGET_SYS_MNTR:
+            property = gui_sys_mntr_get_property(c);
+            break;
+        case GUI_WIDGET_DASHEDLINE:
+            property = gui_dashedline_get_property(c);
+            break;
+        case GUI_WIDGET_DESKTOP:
+            property = gui_desktop_get_property(c);
+            break;
+        case GUI_WIDGET_NONE:
+            break;
+        default:
+            property = __gui_usr_widget_get_property(c);
+            break;
+    }
+
+    return property;
+}
+
+/*------------------------------------------------------------------------------------
  * 函数:    __gui_draw_widget_private()
  *
  * 描述:    显示一个特定的控件
@@ -679,6 +776,7 @@ void guical gui_destroy_widget(gui_widget * c)
 BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
 {
     int has_dirty = NO;
+    INT16U property, refresh_flag;
     gui_window_t * win = NULL;
 
     FamesAssert(c);
@@ -692,16 +790,17 @@ BOOL guical __internal __gui_draw_widget_private(gui_widget * c)
     }
     #endif
 
-    /* FIXME: 由于在处理dirty-rect方面还有问题, 暂时先屏蔽其功能, 2012-1-16 */
-    #if 1
-    if (c->flag & GUI_WIDGET_FLAG_NEED_REFRESH) {
-    #else
-    if (c->flag & GUI_WIDGET_FLAG_REFRESH) {
-    #endif
+    property = __gui_widget_get_property(c);
+    refresh_flag = GUI_WIDGET_FLAG_REFRESH;
+    if (property & GUI_WIDGET_PROP_REFRESH_DIRTY)
+        refresh_flag |= GUI_WIDGET_FLAG_DIRTY;
+
+    if (c->flag & refresh_flag) {
         win = gdc_get_myself_window();
         if (win) {
             has_dirty = gui_window_dirty_mask(win);
         }
+        gui_refresh_widget(c);
     }
 
     if (c->user_draw_method) {
@@ -763,6 +862,7 @@ draw_ok:
     }
     c->flag &= ~GUI_WIDGET_FLAG_REFRESH;
     c->flag &= ~GUI_WIDGET_FLAG_DIRTY;
+    c->flag &= ~GUI_WIDGET_FLAG_CHANGED;
     c->flag |=  GUI_WIDGET_FLAG_VISIBLE;
 
     return ok;

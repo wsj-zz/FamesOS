@@ -60,6 +60,7 @@ void __sysonly gdc_set_myself_window_from_widget(gui_widget * wid);
 GDC_value __sysonly gdc_is_xline_visible(int x, int x2, int y, int * o_x1, int * o_x2);
 GDC_value __sysonly gdc_is_yline_visible(int y, int y2, int x, int * o_y1, int * o_y2);
 GDC_value __sysonly gdc_is_point_visible(int x, int y);
+BOOL      __sysonly gdc_is_rect_intersect(RECT * rect1, RECT * rect2);
 
 
 

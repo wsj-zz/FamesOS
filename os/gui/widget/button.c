@@ -99,8 +99,18 @@ BOOL guical gui_button_set_caption(gui_widget * button, INT08S * caption)
     unlock_kernel();
     retval = ok;
 
+    gui_set_widget_changed(button);
+
 out:
     return retval;
+}
+
+INT16U gui_button_get_property(gui_widget * button)
+{
+    if (gui_is_widget_changed(button))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_button(gui_widget * button)

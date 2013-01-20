@@ -97,7 +97,17 @@ BOOL guical gui_label_set_text(gui_widget * label, INT08S * text)
     t->text[len] = 0;
     unlock_kernel();
     
+    gui_set_widget_changed(label);
+
     return ok;
+}
+
+INT16U gui_label_get_property(gui_widget * label)
+{
+    if (gui_is_widget_changed(label))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_label(gui_widget * label)

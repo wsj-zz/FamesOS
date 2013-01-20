@@ -27,6 +27,7 @@
 **---------------------------------------------------------------------------------------*/
 BOOL  guical  gui_sys_mntr_init_private(gui_widget * sys_mntr);
 void          gui_draw_sys_mntr(gui_widget * sys_mntr);
+INT16U        gui_sys_mntr_get_property(gui_widget * sys_mntr);
 
 
 

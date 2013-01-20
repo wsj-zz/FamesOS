@@ -95,8 +95,15 @@ BOOL guical gui_groupbox_set_caption(gui_widget * groupbox, INT08S * caption)
     unlock_kernel();
 
     gui_refresh_widget(groupbox);
+        /* due to above, gui_set_widget_changed() is not needed any more */
     
     return ok;
+}
+
+INT16U gui_groupbox_get_property(gui_widget * groupbox)
+{
+    groupbox = groupbox;
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_groupbox(gui_widget * groupbox)

@@ -63,8 +63,12 @@ void __internal __gui_edit_show_blink(gui_widget * edit, gui_edit_private * t, I
 
     color = edit->color;
 
+    lock_kernel();
+    gdc_set_myself_window_from_widget(edit);
     gdi_draw_box(x, y, x+1, y+(h-1), color);
-    
+    gdc_set_myself_window(NULL);
+    unlock_kernel();
+
     t->blink_state = 1;
     t->blink_counter = 0;
 }
@@ -109,7 +113,11 @@ void __internal __gui_edit_hide_blink(gui_widget * edit, gui_edit_private * t, I
     if(index < (t->len-1)){
         t->text_old[index] = -1; /* 强制刷新指定位置的字符, 消除光标的显示 */
     } else {
+        lock_kernel();
+        gdc_set_myself_window_from_widget(edit);
         gdi_draw_box(x, y, x+1, y+(h-1), bkcolor);
+        gdc_set_myself_window(NULL);
+        unlock_kernel();
     }
     t->blink_state = 0;
     t->blink_counter = 0;
@@ -154,6 +162,8 @@ BOOL guical gui_edit_blink_on(gui_widget * edit, int speed, int index, INT16U op
     __gui_edit_show_blink(edit, t, edit->style);
     unlock_kernel();
 
+    gui_set_widget_changed(edit);
+
     return ok;
 }
 
@@ -187,6 +197,8 @@ BOOL guical gui_edit_blink_off(gui_widget * edit, INT16U opt)
     unlock_kernel();
 
     opt = opt;
+
+    gui_set_widget_changed(edit);
 
     return ok;
 }
@@ -224,6 +236,8 @@ BOOL guical gui_edit_blink_set(gui_widget * edit, int index, INT16U opt)
     unlock_kernel();
 
     opt = opt;
+
+    gui_set_widget_changed(edit);
 
     return ok;
 }
@@ -494,6 +508,8 @@ BOOL guical gui_edit_set_text(gui_widget * edit, INT08S * text)
     t->text[len] = 0;
     unlock_kernel();
     
+    gui_set_widget_changed(edit);
+
     return ok;
 }
 
@@ -526,6 +542,19 @@ BOOL guical gui_edit_get_text(gui_widget * edit, INT08S * text)
     unlock_kernel();
     
     return ok;
+}
+
+/*-----------------------------------------------------------------------------------------
+ * 函数:    gui_edit_get_property()
+ *
+ * 描述:    返回EDIT的控件特性
+**---------------------------------------------------------------------------------------*/
+INT16U gui_edit_get_property(gui_widget * edit)
+{
+    if (gui_is_widget_changed(edit))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
 }
 
 /*-----------------------------------------------------------------------------------------

@@ -79,7 +79,18 @@ enum __GUI_WIDGET_TYPE {
 */
 #define  GUI_WIDGET_FLAG_VISIBLE      0x0100   /* 已显示的 */
 
+#define  GUI_WIDGET_FLAG_CHANGED      0x0200   /* 控件内容已改变 */
+
 #define  GUI_WIDGET_FLAG_WINDOW       0x1000   /* 窗口的根控件 */
+
+/*-----------------------------------------------------------------------------------------
+ * 
+ *      控件特性
+ * 
+**---------------------------------------------------------------------------------------*/
+#define  GUI_WIDGET_PROP_NONE           0x0000
+#define  GUI_WIDGET_PROP_REFRESH_DIRTY  0x0001  /* DIRTY信号来时, 控件全部重绘 */
+
 
 /*-----------------------------------------------------------------------------------------
  * 
@@ -91,10 +102,12 @@ BOOL guical gui_show_widget(gui_widget * c);
 BOOL guical gui_hide_widget(gui_widget * c);
 BOOL guical gui_draw_widget(gui_widget * c);
 BOOL guical gui_refresh_widget(gui_widget * c);
-BOOL guical gui_set_widget_dirty(gui_widget * c);
+BOOL guical gui_set_widget_dirty(gui_widget * c, RECT * dirty_rect);
 BOOL guical gui_set_widget_rect(gui_widget * c, RECT * rect);
 BOOL guical gui_set_widget_location(gui_widget * c, int x, int y);
 BOOL guical gui_set_widget_dimension(gui_widget * c, int width, int height);
+BOOL guical gui_set_widget_changed(gui_widget * c);
+BOOL guical gui_is_widget_changed(gui_widget * c);
 BOOL guical gui_move_widget_up(gui_widget * c, int up);
 BOOL guical gui_move_widget_down(gui_widget * c, int down);
 BOOL guical gui_move_widget_left(gui_widget * c, int left);

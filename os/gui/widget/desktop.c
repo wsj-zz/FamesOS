@@ -68,6 +68,12 @@ int guical gui_desktop_set_color(COLOR color)
     return ok;
 }
 
+INT16U gui_desktop_get_property(gui_widget * desktop)
+{
+    desktop = desktop;
+    return GUI_WIDGET_PROP_NONE;
+}
+
 /*-----------------------------------------------------------------------------------------
  *
  * Desktop: the default draw method

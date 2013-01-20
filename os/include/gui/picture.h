@@ -30,6 +30,7 @@
 BOOL  guical  gui_picture_init_private(gui_widget * pic);
 BOOL  guical  gui_picture_set_picture(gui_widget * pic, BMPINFO * bmpinfo);
 void          gui_draw_picture(gui_widget * pic);
+INT16U        gui_picture_get_property(gui_widget * pic);
 
 
 

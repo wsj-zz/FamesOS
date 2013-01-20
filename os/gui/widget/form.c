@@ -91,7 +91,7 @@ BOOL guical gui_form_set_icon(gui_widget * form, BMPINFO * icon)
     if(t){
         t->icon = *icon;
         t->x_start = icon->width;
-        t->icon_y_start = (25-icon->height)/2+4;
+        t->icon_y_start = (25-icon->height)/2+4; /* FIXME: 这里可能会有问题(直接用25去减???) */
         gui_refresh_widget(form);
         retval = ok;
     } else {
@@ -123,12 +123,21 @@ BOOL guical gui_form_set_caption(gui_widget * form, INT08S * caption)
         MEMCPY(t->caption, caption, len);
         t->caption[len] = 0;
         retval = ok;
+        gui_set_widget_changed(form);
     } else {
         retval = fail;
     }
     unlock_kernel();
 
     return retval;
+}
+
+INT16U gui_form_get_property(gui_widget * form)
+{
+    if (gui_is_widget_changed(form))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_form(gui_widget * form)

@@ -33,6 +33,7 @@
 BOOL  guical  gui_label_init_private(gui_widget * label, int text_len);
 BOOL  guical  gui_label_set_text(gui_widget * label, INT08S * text);
 void          gui_draw_label(gui_widget * label);
+INT16U        gui_label_get_property(gui_widget * label);
 
 
 

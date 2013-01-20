@@ -95,6 +95,12 @@ static char * ___get_state_str(INT16U state)
     return "     ";
 }
 
+INT16U gui_sys_mntr_get_property(gui_widget * sys_mntr)
+{
+    sys_mntr = sys_mntr;
+    return GUI_WIDGET_PROP_REFRESH_DIRTY;
+}
+
 void gui_draw_sys_mntr(gui_widget * sys_mntr)
 {
     int i, x, y, x1, y1, move;

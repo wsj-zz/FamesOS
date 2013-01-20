@@ -41,6 +41,7 @@ typedef struct progress_assoc_s progress_assoc_t;
 BOOL guical gui_progress_init_private(gui_widget * progress, int full_value);
 BOOL guical gui_progress_set_value(gui_widget * progress, int value);
 void        gui_draw_progress(gui_widget * progress);
+INT16U      gui_progress_get_property(gui_widget * progress);
 
 
 

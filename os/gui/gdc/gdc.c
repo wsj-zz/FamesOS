@@ -18,8 +18,8 @@
 #define MAKE_X1_Y1_X2_Y2(rect)  int X1, Y1, X2, Y2;             \
                                 X1 = (rect)->x;                 \
                                 Y1 = (rect)->y;                 \
-                                X2 = X1 + (rect)->width - 1;    \
-                                Y2 = Y1 + (rect)->height - 1;
+                                X2 = __gui_make_x2(X1, (rect)->width);    \
+                                Y2 = __gui_make_y2(Y1, (rect)->height);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -398,6 +398,34 @@ static int gdc_is_point_visible_in_window(gui_window_t * w, int x, int y)
         return YES;
 
     return NO;
+}
+
+BOOL __sysonly gdc_is_rect_intersect(RECT * rect1, RECT * rect2)
+{
+    int r1_x1, r1_x2, r1_y1, r1_y2;
+    int r2_x1, r2_x2, r2_y1, r2_y2;
+
+    if (!rect1 || !rect2)
+        return NO;
+
+    lock_kernel();
+    r1_x1 = rect1->x;
+    r1_x2 = __gui_make_x2(r1_x1, rect1->width);
+    r1_y1 = rect1->y;
+    r1_y2 = __gui_make_y2(r1_y1, rect1->height);
+
+    r2_x1 = rect2->x;
+    r2_x2 = __gui_make_x2(r2_x1, rect2->width);
+    r2_y1 = rect2->y;
+    r2_y2 = __gui_make_y2(r2_y1, rect2->height);
+    unlock_kernel();
+
+    if (r1_x1 > r2_x2 || r1_x2 < r2_x1 ||
+        r1_y1 > r2_y2 || r1_y2 < r2_y1) {     /* ²»Ïà½» */
+        return NO;
+    }
+
+    return YES;
 }
 
 /*----------------------------------------------------------------------------------------------

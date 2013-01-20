@@ -92,6 +92,7 @@ BOOL  guical  gui_view_select_index(gui_widget *view, int index);
 int   guical  gui_view_get_selected(gui_widget *view);
 BOOL  guical  gui_view_set_dashed(gui_widget *view, COLOR dashed_color, INT08U dashed_style);
 void          gui_draw_view(gui_widget * view);
+INT16U        gui_view_get_property(gui_widget * view);
 KEYCODE guical gui_view_editing(gui_widget *view, INT16U opt);
 
 

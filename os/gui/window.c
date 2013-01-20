@@ -247,6 +247,7 @@ void guical gui_hide_window(gui_window_t * w)
 {
 /*lint --e{613}*/
     gui_window_t * t;
+    RECT * dirty_rect;
 
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
@@ -265,9 +266,10 @@ void guical gui_hide_window(gui_window_t * w)
             break;
         if (!(t->flag & WINDOW_FLAG_SHOW))
             continue;   /* 不理会隐藏窗口 */
-        gui_window_set_dirty(t, gui_window_get_realrect(w));
+        dirty_rect = gui_window_get_realrect(w);
+        gui_window_set_dirty(t, dirty_rect);
         if (t->root_widget)
-            gui_set_widget_dirty(t->root_widget);
+            gui_set_widget_dirty(t->root_widget, dirty_rect);
     }
 
 out:
@@ -315,6 +317,7 @@ static void __do_window_relocation_resize(
 /*lint --e{613}*/
 
     gui_window_t * t;
+    RECT * dirty_rect;
 
     FamesAssert(w);
     FamesAssert(w->magic == WINDOW_MAGIC);
@@ -332,8 +335,9 @@ static void __do_window_relocation_resize(
             break;
         if (!(t->flag & WINDOW_FLAG_SHOW))
             continue;   /* 不理会隐藏窗口 */
-        gui_window_set_dirty(t, gui_window_get_realrect(w));
-        gui_set_widget_dirty(t->root_widget);
+        dirty_rect = gui_window_get_realrect(w);
+        gui_window_set_dirty(t, dirty_rect);
+        gui_set_widget_dirty(t->root_widget, dirty_rect);
     }
 
 do_set_it:

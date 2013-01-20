@@ -91,7 +91,17 @@ BOOL guical gui_progress_set_value(gui_widget * progress, int value)
     t->current = value;
     unlock_kernel();
 
+    gui_set_widget_changed(progress);
+
     return ok;
+}
+
+INT16U gui_progress_get_property(gui_widget * progress)
+{
+    if (gui_is_widget_changed(progress))
+        return GUI_WIDGET_PROP_REFRESH_DIRTY;
+
+    return GUI_WIDGET_PROP_NONE;
 }
 
 void gui_draw_progress(gui_widget * progress)

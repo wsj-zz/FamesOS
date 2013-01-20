@@ -27,6 +27,7 @@
 BOOL guical gui_button_init_private(gui_widget * button, int text_len);
 BOOL guical gui_button_set_caption(gui_widget * button, INT08S * caption);
 void        gui_draw_button(gui_widget * button);
+INT16U      gui_button_get_property(gui_widget * button);
 
 
 
