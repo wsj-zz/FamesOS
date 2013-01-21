@@ -279,6 +279,56 @@ out:
     return;
 }
 
+void guical gui_show_window_withstyle(gui_window_t * w)
+{
+/*lint --e{613}*/
+    int i, x, y, width, height, xstep, ystep, step;
+    int saved_x, saved_y;
+
+    FamesAssert(w);
+    FamesAssert(w->magic == WINDOW_MAGIC);
+    if (!w || w->magic != WINDOW_MAGIC || !w->root_widget)
+        return;
+
+    lock_kernel();
+    if (w->flag & WINDOW_FLAG_SHOW)
+        goto out;
+
+    __window_list_del(w);
+    __window_list_add(w);
+    x = gui_window_get_realrect(w)->x;
+    y = gui_window_get_realrect(w)->y;
+    saved_x = x;
+    saved_y = y;
+    width = gui_window_get_realrect(w)->width;
+    height = gui_window_get_realrect(w)->height;
+    xstep = width / 2;
+    x += xstep;
+    ystep = height / 2;
+    y += ystep;
+    step = xstep / 6; /* 显示6,7次应该就可以显示完整 */
+    w->flag |= WINDOW_FLAG_SHOW;
+    for (i = 0; i <= xstep; i++) {
+        gui_set_widget_location(w->root_widget, x-i, y-(int)((long)i*ystep/xstep));
+        gui_set_widget_dimension(w->root_widget, (i*2), (int)((long)i * 2 * height / width));
+        gui_window_clear_dirty(w);
+        if ((i % step) == 0) {
+            unlock_kernel();
+            gui_service_wait_refresh();
+            TaskSleep(20uL);
+            lock_kernel();
+        }
+    }
+    gui_set_widget_location(w->root_widget, saved_x, saved_y);
+    gui_set_widget_dimension(w->root_widget, width, height);
+
+out:
+    unlock_kernel();
+    gui_service_wait_refresh();
+
+    return;
+}
+
 void guical gui_refresh_window(gui_window_t * w)
 {
 /*lint --e{613}*/

@@ -45,6 +45,7 @@ void guical gui_destroy_window(gui_window_t * w);
 gui_window_t * guical gui_find_window_from_widget(gui_widget * widget);
 void guical gui_show_window(gui_window_t * w);
 void guical gui_hide_window(gui_window_t * w);
+void guical gui_show_window_withstyle(gui_window_t * w);
 void guical gui_refresh_window(gui_window_t * w);
 RECT * guical gui_window_get_realrect(gui_window_t * w);
 
