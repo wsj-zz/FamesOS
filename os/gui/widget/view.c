@@ -676,6 +676,7 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
             h -= 6;
             lock_kernel();
             gui_init_rect(&t->__edit.real_rect, x, y, w+1, h+1);
+            gui_edit_set_text(&t->__edit, "");
             gui_refresh_widget(&t->__edit);
             gdc_set_myself_window_from_widget(view);
             gui_draw_edit(&t->__edit); /* 这句的作用是重新计算光标的位置的(并不是真的需要显示它) */
