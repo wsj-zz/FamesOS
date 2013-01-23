@@ -20,14 +20,17 @@
 **--------------------------------------------------------------------------------------------*/
 #if     FamesAssertionEnable
 #ifdef  FAMES_GLOBAL
-char    __assert_format[] = "Fames Assertion failed: %s, file %s, line %d\n";
+char    __assert_format[] = "Fames Assertion failed: { %s }, file %s, line %d\n%s\n";
 #else
 extern  char __assert_format[];
 #endif
-#define FamesAssert(p)    if(!(p)){DispatchLock();                  \
-                          fprintf(stderr,  __assert_format,         \
-                          #p, __FILE__, __LINE__); getch();         \
-                          if(FamesOSStarted==YES)ExitApplication(); else abort();}
+#define FamesAssert(p)    if(!(p)){DispatchLock();                   \
+                          fprintf(stderr,  __assert_format,          \
+                          #p, __FILE__, __LINE__,                    \
+                          os_get_description());                     \
+                       /* 当断言失败时, 退出系统会丢失断言消息 */    \
+                          for(;;)getch();                            \
+                       /* if(FamesOSStarted==YES)ExitApplication(); else abort(); */}
 #undef  NDEBUG
 #define SysAssert(p) assert(p)
 #else
