@@ -234,14 +234,15 @@ void show_status(int index, int x, int y, int width, int height,
 void notifier(int index, int prev_index, INT16U option)
 {
     int i;
+    long i32;
 
     if(get_max_index() < 0)
         return;
 
     i = index+1;
 
-    i *= 100;
-    i /= (get_max_index()+1);
+    i32 = (long)i * 100; /* 这里必须用long型数据, 不然当i>327的时候就会变成负数 */
+    i = (int)(i32/(get_max_index()+1));
 
     gui_progress_set_value(progress1, i);
 
@@ -501,19 +502,24 @@ void __task refresh_task(void * data)
             count = 1;
         gui_label_set_text(label, buf);
 
-    	gui_form_set_caption(form, buf);
+        #if 1
+        gui_form_set_caption(form, buf);
+        #endif
 
         sprintf(buf, "[%d%%] %ld 将那个Label盖住", CPU_USED, count*3);
         gui_button_set_caption(button, buf);
 
-        if (1) {
+        if (0) {
             static int f = 0, i = 0;
             static KEYCODE key, test_keys[] = {'d', ENTER, ESC, 'f', ENTER, 'h', ENTER, ESC};
 
             if (--f <= 0) {
-                f = 2;
+                f = 1;
                 /* key = test_keys[i++]; */
                 key = random(128);
+                if (key < 0x20 && key != ESC) {
+                    key = (random(0xE0) << 8) + 0x2000;
+                }
                 putkey(key);
                 if (i >= sizeof(test_keys))
                     i = 0;
@@ -524,14 +530,26 @@ void __task refresh_task(void * data)
             static int f = 0, x = 0, y = 0;
 
             if (--f <= 0) {
-                f = 500;
+                f = 2;
                 x = random(900);
                 y = random(700);
                 gui_window_moveto(window3, x, y);
             }
         }        
 	
-    	TaskSleep(20);
+        if (1) {
+            static int f = 0, x = 0;
+            char buf[32];
+
+            if (--f <= 0) {
+                f = 10;
+                x = random(20000);
+                sprintf(buf, "random() = %d", x);
+                gui_edit_set_text(edit, buf);
+            }
+        }
+
+        TaskSleep(20);
     }
 }
 
@@ -624,13 +642,17 @@ void __task start(void * data)
                 break;
             case 'd':
             case 'D':
+                gui_show_window(window2);
                 input_dialog_method(&abcde, dialog_prepare, dialog_finish, NULL, 1);
                 {
+                    /*
                     static COLOR tmp = 67;
                     gui_desktop_set_color(tmp);
                     tmp += 77;
+                    */
                 }
                 TaskSleep(10);
+                gui_hide_window(window2);
                 break;
             case 'h':
             case 'H':
