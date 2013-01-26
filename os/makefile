@@ -10,6 +10,9 @@ OS_LIB     =  os.lib
 
 
 $(OS_LIB): $(OS_LIST)
+	CD VERSION
+	CALL mk_osver.bat
+	CD ..
 	DEL $(OS_LIB)
 	$(LIB_UTIL) $(OS_LIB) $(OS_FILE)
 	COPY $(OS_LIB) ..

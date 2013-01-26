@@ -63,9 +63,9 @@ STRING apical os_get_buildtime(void)
 
 STRING apical os_get_description(void)
 {
-    return "FamesOS Version "FamesOS_VersionString", "
+    return "FamesOS Ver " FamesOS_VersionString ", "
            "shujun(wsj20369@yahoo.com.cn), "
-           "Build: "__DATE__" "__TIME__" "
+           "Build: " __DATE__ " " __TIME__ " "
            "";
 }
 
