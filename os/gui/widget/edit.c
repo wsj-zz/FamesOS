@@ -39,6 +39,7 @@ void __internal __gui_edit_show_blink(gui_widget * edit, gui_edit_private * t, I
     RECT * inner_rect;
     FONTINFO fontinfo;
     COLOR color;
+    gui_window_t * saved_win;
 
     style = style;
 
@@ -64,9 +65,10 @@ void __internal __gui_edit_show_blink(gui_widget * edit, gui_edit_private * t, I
     color = edit->color;
 
     lock_kernel();
+    saved_win = gdc_get_myself_window();
     gdc_set_myself_window_from_widget(edit);
     gdi_draw_box(x, y, x+1, y+(h-1), color);
-    gdc_set_myself_window(NULL);
+    gdc_set_myself_window(saved_win);
     unlock_kernel();
 
     t->blink_state = 1;
@@ -84,6 +86,7 @@ void __internal __gui_edit_hide_blink(gui_widget * edit, gui_edit_private * t, I
     RECT  * inner_rect;
     FONTINFO fontinfo;
     COLOR bkcolor;
+    gui_window_t * saved_win;
 
     style = style;
 
@@ -114,9 +117,10 @@ void __internal __gui_edit_hide_blink(gui_widget * edit, gui_edit_private * t, I
         t->text_old[index] = -1; /* 强制刷新指定位置的字符, 消除光标的显示 */
     } else {
         lock_kernel();
+        saved_win = gdc_get_myself_window();
         gdc_set_myself_window_from_widget(edit);
         gdi_draw_box(x, y, x+1, y+(h-1), bkcolor);
-        gdc_set_myself_window(NULL);
+        gdc_set_myself_window(saved_win);
         unlock_kernel();
     }
     t->blink_state = 0;
@@ -175,6 +179,7 @@ BOOL guical gui_edit_blink_on(gui_widget * edit, int speed, int index, INT16U op
 BOOL guical gui_edit_blink_off(gui_widget * edit, INT16U opt)
 {
     gui_edit_private * t;
+    gui_window_t * saved_win;
 
     FamesAssert(edit);
     if(!edit)
@@ -193,9 +198,10 @@ BOOL guical gui_edit_blink_off(gui_widget * edit, INT16U opt)
     lock_kernel();
     t->blink_on = 0;
     __gui_edit_hide_blink(edit, t, edit->style);
+    saved_win = gdc_get_myself_window();
     gdc_set_myself_window_from_widget(edit);
     gui_draw_edit(edit);
-    gdc_set_myself_window(NULL);
+    gdc_set_myself_window(saved_win);
     unlock_kernel();
 
     opt = opt;

@@ -563,6 +563,7 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
     int __y, __h, find_next;
     int continue_edit;
     char * old_buf;
+    gui_window_t * saved_win;
 
     opt = opt;
 
@@ -678,9 +679,10 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
             gui_init_rect(&t->__edit.real_rect, x, y, w+1, h+1);
             gui_edit_set_text(&t->__edit, "");
             gui_refresh_widget(&t->__edit);
+            saved_win = gdc_get_myself_window();
             gdc_set_myself_window_from_widget(view);
             gui_draw_edit(&t->__edit); /* 这句的作用是重新计算光标的位置的(并不是真的需要显示它) */
-            gdc_set_myself_window(NULL);
+            gdc_set_myself_window(saved_win);
             t->edit_flag = 2;
             unlock_kernel();
             key = gui_edit_input(&t->__edit, buf, f->bytes, 0);
@@ -699,6 +701,7 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
                 default:
                     (void)get_item(index, f->id, buf, f->bytes, 0);
                     lock_kernel();
+                    saved_win = gdc_get_myself_window();
                     gdc_set_myself_window_from_widget(view);
                     if(view->style & VIEW_STYLE_NONE_SELECT){
                         gdi_draw_box(x, y, x+w, y+h, t->data_bkcolor);
@@ -707,7 +710,7 @@ KEYCODE gui_view_editing(gui_widget *view, INT16U opt)
                         gdi_draw_box(x, y, x+w, y+h, VIEW_EDITED_BKCOLOR);
                         draw_font_ex(x+1, y+1, w, h, buf, VIEW_EDITED_COLOR, VIEW_EDITED_BKCOLOR, view->font, (f->draw_style & ~DRAW_OPT_FIL_BG));
                     }
-                    gdc_set_myself_window(NULL);
+                    gdc_set_myself_window(saved_win);
                     unlock_kernel();
                     break;
             }
