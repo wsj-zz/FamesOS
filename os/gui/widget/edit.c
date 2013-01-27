@@ -308,7 +308,7 @@ KEYCODE gui_edit_input(gui_widget * edit, char * __BUF buf, int bytes, INT16U op
 
     gui_edit_set_text(edit, __buf);
     TaskSleep(20L); /* 睡眠的意思是给edit以刷新的机会 */
-    gui_edit_blink_on(edit, 16, blink, 0); /* 打开光标 */
+    gui_edit_blink_on(edit, 12, blink, 0); /* 打开光标 */
 
     while(__not_ok){
         #if 0
