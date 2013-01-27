@@ -103,7 +103,7 @@ view_fields_t fields[] = {
     { "姓名", __id_name, 8,  9, 0, __style, "学生的姓名，4个汉字",},
     { "性别", __id_sex,  1,  5, 0, __style, "M/F",},
     { "年龄", __id_old,  3,  6, 0, __style, "",},
-    { "备注", __id_sss, 28, 30, 0, __style, "学生备注",},
+    { "备注", __id_sss, 28, 30, 0, DRAW_OPT_FIL_BG, "学生备注",},
     { NULL, },
 };
 
@@ -165,7 +165,7 @@ BOOL get_item(int index, int field_id, char *buf, int buf_len, INT16U option)
             sprintf(buf, "%d", t->old);
             break;
         case __id_sss:
-            sprintf(buf, "%s", t->comment);
+            sprintf(buf, "随机数: %d", rand());
             break;
         default:
             break;
@@ -417,7 +417,7 @@ void demo_init_gui(void)
     form = gui_create_widget(GUI_WIDGET_FORM, 180, 120, 632, 500, 0, 0, 0, FORM_STYLE_XP_BORDER|FORM_STYLE_TITLE);
     if(!form)
         goto err;
-    gui_form_init_private(form, 64);
+    gui_form_init_private(form, 128);
     gui_form_set_caption(form, "控件演示");
     gui_form_set_icon(form, &icon);
 
@@ -462,14 +462,13 @@ void demo_init_gui(void)
     gui_widget_link(NULL, form);
     gui_widget_link(form, view);
     gui_widget_link(form, edit);
-    gui_widget_link(form, test);
     gui_widget_link(form, label);
+    gui_widget_link(form, progress1);
+    gui_widget_link(form, test);
 
     gui_widget_link(NULL, dialog);
 
     gui_widget_link(NULL, button);
-
-    gui_widget_link(form, progress1);
 
     window1 = gui_create_window(form);
     gui_show_window(window1);
@@ -480,12 +479,15 @@ void demo_init_gui(void)
     window3 = gui_create_window(button);
     gui_show_window(window3);
 
+    gui_form_set_caption(form, os_get_description());
+
     StartGUI();
     
 err:
     return;
 }
 
+int moveto_x, moveto_y, moveto_now = 0;
 
 void __task refresh_task(void * data)
 {
@@ -502,7 +504,7 @@ void __task refresh_task(void * data)
             count = 1;
         gui_label_set_text(label, buf);
 
-        #if 1
+        #if 0
         gui_form_set_caption(form, buf);
         #endif
 
@@ -516,9 +518,9 @@ void __task refresh_task(void * data)
             if (--f <= 0) {
                 f = 1;
                 /* key = test_keys[i++]; */
-                key = random(128);
-                if (key < 0x20 && key != ESC) {
-                    key = (random(0xE0) << 8) + 0x2000;
+                key = (random(128) * random(128)) % 128;
+                if (key < 0x10 && key != ESC) {
+                    key += 0x10;
                 }
                 putkey(key);
                 if (i >= sizeof(test_keys))
@@ -530,7 +532,7 @@ void __task refresh_task(void * data)
             static int f = 0, x = 0, y = 0;
 
             if (--f <= 0) {
-                f = 2;
+                f = 20;
                 x = random(900);
                 y = random(700);
                 gui_window_moveto(window3, x, y);
@@ -549,8 +551,32 @@ void __task refresh_task(void * data)
             }
         }
 
+        if (moveto_now) {
+            moveto_now = 0;
+            gui_window_moveto(window3, moveto_x, moveto_y);
+        }
+
         TaskSleep(20);
     }
+}
+
+void move_button(void)
+{
+    static int x, y, flag = 0;
+
+    if (flag) {
+        moveto_x = x;
+        moveto_y = y;
+        moveto_now = 1;
+    } else {
+        x = window3->root_widget->real_rect.x;
+        y = window3->root_widget->real_rect.y;
+        moveto_x = 100;
+        moveto_y = 640;
+        moveto_now = 1;
+    }
+
+    flag = !flag;
 }
 
 /*------------------------------------------------------------------------------------
@@ -577,6 +603,8 @@ void __task start(void * data)
     TaskCreate(refresh_task, NULL, "refresh", NULL, 2048, 8, TASK_CREATE_OPT_NONE);
 
     OpenConsole();
+
+    RegisterSpecialKey('x', move_button);
 
     for(;;){
         KEYCODE key;
@@ -642,17 +670,15 @@ void __task start(void * data)
                 break;
             case 'd':
             case 'D':
-                gui_show_window(window2);
+                /*gui_show_window(window2);*/
                 input_dialog_method(&abcde, dialog_prepare, dialog_finish, NULL, 1);
                 {
-                    /*
                     static COLOR tmp = 67;
                     gui_desktop_set_color(tmp);
                     tmp += 77;
-                    */
                 }
                 TaskSleep(10);
-                gui_hide_window(window2);
+                /*gui_hide_window(window2);*/
                 break;
             case 'h':
             case 'H':
@@ -665,34 +691,39 @@ void __task start(void * data)
             case 'm':
             case 'M':
                 while (1) {
+                    gui_window_t * w;
                     KEYCODE move;
+                    if (buf[0] == 'm')
+                        w = window2;
+                    else
+                        w = window3;
                     move = getkey();
                     switch (move) {
                         case ESC:
                             goto out_while;
                         case LEFT:
-                            gui_window_move(window2, -23, 0);
+                            gui_window_move(w, -23, 0);
                             break;
                         case RIGHT:
-                            gui_window_move(window2, 13, 0);
+                            gui_window_move(w, 13, 0);
                             break;
                         case UP:
-                            gui_window_move(window2, 0, -11);
+                            gui_window_move(w, 0, -11);
                             break;
                         case DOWN:
-                            gui_window_move(window2, 0, 23);
+                            gui_window_move(w, 0, 23);
                             break;
                         case CTRL_LEFT:
-                            gui_window_resize(window2, -23, 0);
+                            gui_window_resize(w, -23, 0);
                             break;
                         case CTRL_RIGHT:
-                            gui_window_resize(window2, 13, 0);
+                            gui_window_resize(w, 13, 0);
                             break;
                         case CTRL_UP:
-                            gui_window_resize(window2, 0, -11);
+                            gui_window_resize(w, 0, -11);
                             break;
                         case CTRL_DOWN:
-                            gui_window_resize(window2, 0, 23);
+                            gui_window_resize(w, 0, 23);
                             break;
                     }
                 }
