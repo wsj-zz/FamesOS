@@ -334,7 +334,7 @@ static GDC_value gdc_is_yline_visible_1_rect(RECT *rect, int y, int y2, int x, i
 **--------------------------------------------------------------------------------------------*/
 static int gdc_is_point_visible_in_window(gui_window_t * w, int x, int y);
 
-GDC_value __sysonly  gdc_is_point_visible(int x, int y)
+GDC_value __sysonly gdc_is_point_visible(int x, int y)
 {
     gui_window_t * myself, * w;
     gui_widget * myself_root;
