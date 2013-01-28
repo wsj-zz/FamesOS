@@ -444,22 +444,36 @@ void guical gui_window_resize_to(gui_window_t * w, int width, int height)
 **---------------------------------------------------------------------------------------*/
 gui_window_t * guical gui_get_top_window(void)
 {
-    gui_window_t * t;
+    gui_window_t * t, * top = NULL;
 
     lock_kernel();
     t = gui_window_list;
-    if (t) {
-        while (t->next)
-            t = t->next;
+    while (t) { /* find the last one visible */
+        if (t->flag & WINDOW_FLAG_SHOW)
+            top = t;
+        t = t->next;
     }
     unlock_kernel();
 
-    return t;
+    return top;
 }
 
 gui_window_t * guical gui_get_bottom_window(void)
 {
-    return gui_get_window_list();
+    gui_window_t * t, * bot = NULL;
+
+    lock_kernel();
+    t = gui_window_list;
+    while (t) { /* find the first one visible */
+        if (t->flag & WINDOW_FLAG_SHOW) {
+            bot = t;
+            break;
+        }
+        t = t->next;
+    }
+    unlock_kernel();
+
+    return bot;
 }
 
 /*-----------------------------------------------------------------------------------------
