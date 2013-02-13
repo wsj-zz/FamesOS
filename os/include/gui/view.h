@@ -50,13 +50,13 @@ typedef int  (* view_get_max_index_f)(void);
 typedef BOOL (* view_get_item_f)(int index, int field_id, char *buf, int buf_len, INT16U option);
 typedef BOOL (* view_set_item_f)(int index, int field_id, char *buf, int buf_len, KEYCODE key, INT16U option);
 typedef BOOL (* view_is_writable_f)(int index, int field_id, INT16U option);
-typedef void (* view_show_record_f)(int index, int row, 
-                                    int x, int y, int width_zoom, int height, 
+typedef void (* view_show_record_f)(int index, int row,
+                                    int x, int y, int width_zoom, int height, int x_border,
                                     COLOR color, COLOR bkcolor, int font,
                                     COLOR marker_color, COLOR marker_bkcolor,
                                     void *old, int *fields_width, INT16U option);
 typedef void (* view_show_statistics_f)(int index,
-                                    int x, int y, int width, int height, 
+                                    int x, int y, int width, int height,
                                     int color, int bkcolor, int font,
                                     INT08S *field_comment,
                                     INT08S *old, INT16U option);

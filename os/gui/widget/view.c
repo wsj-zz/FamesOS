@@ -1171,17 +1171,29 @@ void gui_draw_view(gui_widget * view)
                             buf[0] = 0; /* 如果没有数据, 那就清空buf */
                         if((t->edit_flag == 2) && (first_record_index+i == selected_index_curr) &&
                             !(view->style & VIEW_STYLE_NONE_SELECT)){ /* 在有选择模式下, 如果正在编辑这一行, 那么颜色会有所不同 */
-                            draw_font_for_widget(x+f->offset_x, y, (f->width-to_left), height_per_row, buf, 
+                            int width;
+                            width = f->width-to_left;
+                            if ((x+f->offset_x) + width > x1) /* 右边界不能超过控件的范围 */
+                                width = x1 - (x+f->offset_x);
+                            draw_font_for_widget(x+f->offset_x, y, width, height_per_row, buf,
                                                  records_oldbuf(i)+f->old_buf_ptr, /*lint !e679*/
                                                  VIEW_EDITED_COLOR, VIEW_EDITED_BKCOLOR, font, f->draw_style);
                         } else {
                             if((f == ___f) && (view->style & VIEW_STYLE_MARK_BAR)){
                                 /* 第一个字段可能需要特殊显示 */
-                                draw_font_for_widget(x+f->offset_x+3, y, (f->width-to_left)-6, height_per_row, buf, 
+                                int width;
+                                width = (f->width-to_left)-6;
+                                if ((x+f->offset_x+3) + width > x1) /* 右边界不能超过控件的范围 */
+                                    width = x1 - (x+f->offset_x+3);
+                                draw_font_for_widget(x+f->offset_x+3, y, width, height_per_row, buf,
                                                      records_oldbuf(i)+f->old_buf_ptr, /*lint !e679*/
                                                      marker_color, marker_bkcolor, font, f->draw_style);
                             } else {
-                                draw_font_for_widget(x+f->offset_x, y, (f->width-to_left), height_per_row, buf, 
+                                int width;
+                                width = f->width-to_left;
+                                if ((x+f->offset_x) + width > x1) /* 右边界不能超过控件的范围 */
+                                    width = x1 - (x+f->offset_x);
+                                draw_font_for_widget(x+f->offset_x, y, width, height_per_row, buf,
                                                      records_oldbuf(i)+f->old_buf_ptr, /*lint !e679*/
                                                      color, bkcolor, font, f->draw_style);
                             }
@@ -1190,7 +1202,7 @@ void gui_draw_view(gui_widget * view)
                 }
             } else {
                 /* 在这里, show_record!=NULL */
-                show_record(first_record_index+i, i, x, y, to_left, height_per_row,
+                show_record(first_record_index+i, i, x, y, to_left, height_per_row, x1,
                             color, bkcolor, font, marker_color, marker_bkcolor,
                             records_oldbuf(i), t->x_width_fields, 0); /*lint !e679*/
             }
