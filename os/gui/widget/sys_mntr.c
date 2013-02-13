@@ -27,7 +27,8 @@ struct gui_sys_mntr_private_s {
     INT08S lines[2][sizeof(__line)+2];
     INT08S data[MAX_TASKS][128];
     INT08S statistics[128];
-    INT08S os_info[64];
+    INT08S os_info[32];
+    INT08S os_desc[128];    /* os_get_description */
     INT16S tasks_old;
     INT08S running_time[64];
 };
@@ -204,7 +205,10 @@ void gui_draw_sys_mntr(gui_widget * sys_mntr)
         y += 26;
         sprintf(str, "%s-%s", os_get_name(), os_get_version_string());
         draw_font_for_widget(x, y, 0, 0, str, t->os_info, 206, bkcolor, 2, DRAW_OPT_FIL_BG);
-        y += 70;
+        y += 66;
+        sprintf(str, "%s", os_get_description());
+        draw_font_for_widget(x, y, 0, 0, str, t->os_desc, color, bkcolor, 1, DRAW_OPT_FIL_BG);
+        y += 30;
         if(1){ /*lint !e506 !e774*/
             int day, hour, minute, second;
             INT32U v;
