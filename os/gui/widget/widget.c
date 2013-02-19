@@ -588,9 +588,14 @@ BOOL guical gui_set_widget_draw_method(gui_widget * c, void (*draw_fn)(gui_widge
  * 函数:    gui_widget_link()
  *
  * 描述:    将一个控件树连接到另一个控件树中
+ *
+ * 历史:    此函数最初是将child链到了father的首结点位置上(队列头),
+ *          而后将其修正为链到队列尾(其实本来就应该是这样子的) -- 2013/2/19
 **----------------------------------------------------------------------------------*/
 BOOL guical gui_widget_link(gui_widget * father, gui_widget * child)
 {
+    gui_widget ** t;
+
     FamesAssert(child);
 
     if(!child)
@@ -602,8 +607,15 @@ BOOL guical gui_widget_link(gui_widget * father, gui_widget * child)
     lock_kernel();
     child->father = father;
     child->next   = NULL;
-    child->next = father->child;
-    father->child = child;
+    t = &(father->child);
+    while(*t){
+        if(*t == child){
+            unlock_kernel();
+            return fail; /* 队列中已经存在了, 不需要再入队 */
+        }
+        t = &(*t)->next;
+    }
+    *t = child;
     __gui_set_widget_realrect(child);
     unlock_kernel();
 
@@ -664,7 +676,7 @@ BOOL guical gui_free_widget_tree(gui_widget * tree)
     t = tree->child;
     while(t){
         tt = t->next;
-        gui_free_widget(t);
+        gui_free_widget_tree(t);
         t = tt;
     }
     gui_free_widget(tree);
