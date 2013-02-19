@@ -24,9 +24,9 @@ static char FamesOS_AUTHOR[] =      "Jun";
 
 #define FamesOS_VersionMajor          0
 #define FamesOS_VersionMinor          7
-#define FamesOS_VersionSerial         7
+#define FamesOS_VersionSerial         8
 
-#define FamesOS_VersionString       "0.7.7"
+#define FamesOS_VersionString       "0.7.8"
 
 INT32U apical os_get_version(void)
 {
